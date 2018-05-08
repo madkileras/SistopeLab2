@@ -1,0 +1,1 @@
+pipeline: main.cpp imageControl.cpp; g++ -std=c++11 -o pipeline main.cpp imageControl.cpp -I.
