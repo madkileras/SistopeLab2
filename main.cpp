@@ -4,13 +4,19 @@
 #include <iostream>
 #include "imageControl.hpp"
 #include <string>
+#include <unistd.h>
+#include <iostream>
 using namespace std;
 #define R 0
 #define G 1
 #define B 2
 #define A 3
 int main(int argc, char **argv){
-    
+    pid_t my_pid=getpid(), parent_pid=getppid(),child_pids;
+    cout <<"PID actual: "<< my_pid << endl;
+    cout <<"PID padre: "<< parent_pid << endl;
+    //cout << child_pid << endl;
+
     //DECLARACION DE VARIABLES PARA ARGUMENTOS RECIBIDOS
     //c:cantidad de imágenes ; u: umbral; n: umbral para clasificacion; b: bandera(?)
     int c,u,n,b=0;
@@ -41,8 +47,11 @@ int main(int argc, char **argv){
     std::string out;
     char inF[100];
     char outF[100];
+    // -----> HASTA ACA EL PROCESO MAIN
+
+    if(parent_pid==0){}
     //Se recorren todas la imagenes, se procesan y se guardan
-    while(i<c){
+
         in="imagen_"+std::to_string(i+1)+".bmp";
         out="imagenSalida_"+std::to_string(i+1)+".bmp";
         sprintf(inF,in.c_str());
@@ -50,8 +59,16 @@ int main(int argc, char **argv){
         cout << "nombre entrada " << inF << endl;
         cout << "nombre salida " << outF << endl;
         ImageControl received;
-        received.loadBMP(inF);
-        received.blancoYnegro(u);
+        //received.loadBMP(inF);
+        if ( fork()==0 )
+            {
+            	execl("Pipelines/cargarImagen.o","cat",0,0);
+            	printf ("Si ves esto, no se pudo ejecutar el asdasdasdasd\n");
+                }
+
+
+        cout << "salimoh " <<endl;
+        /*received.blancoYnegro(u);
         received.escalaGrises();
         sprintf(outF,out.c_str());
         received.saveImage(outF,1);
@@ -66,7 +83,7 @@ int main(int argc, char **argv){
         
         
     }
-    
+
     if(b){ //Se imprimen los resultados de nearlyBlack de cada imágen
         cout << endl << "Resultados:" << endl;
         cout << "|    image    |    nearly_black    |"<<endl;
@@ -83,7 +100,7 @@ int main(int argc, char **argv){
         }
     }
     
-   
+   */
   
 
   

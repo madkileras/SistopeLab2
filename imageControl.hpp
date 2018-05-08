@@ -37,7 +37,7 @@ class ImageControl{
 
 	public:
 		//constructor
-		ImageControl(void);
+
 		//funcion que carga la imagen en la variable de la clase image
 		unsigned char* loadBMP(char* filename);
 
@@ -62,6 +62,6 @@ class ImageControl{
 		//Función que libera las imágenes del objeto
 		int freeImages();
 
-		~ImageControl(void);
+
 
 };
