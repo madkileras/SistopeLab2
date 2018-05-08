@@ -126,8 +126,6 @@ void ImageControl::escalaGrises(){
                 escala[i][j][R]=lum(getRGBpixel(i,j));
                 escala[i][j][G]=lum(getRGBpixel(i,j));
                 escala[i][j][A]=image[i][j][A];
-
-
         }
     }
     return;
@@ -154,27 +152,20 @@ int ImageControl::saveImage(char *filename, int tag){
                     fwrite(&(image[i][j/4][G]),sizeof(unsigned char),1,prueba);
                     fwrite(&(image[i][j/4][R]),sizeof(unsigned char),1,prueba);
                     fwrite(&(image[i][j/4][A]),sizeof(unsigned char),1,prueba);
-
                 }
                 else if(tag==1){
-
                     fwrite(&(byn[i][j/4][B]),sizeof(unsigned char),1,prueba);
                     fwrite(&(byn[i][j/4][G]),sizeof(unsigned char),1,prueba);
                     fwrite(&(byn[i][j/4][R]),sizeof(unsigned char),1,prueba);
                     fwrite(&(byn[i][j/4][A]),sizeof(unsigned char),1,prueba);
                 }
                 else{
-
                     fwrite(&(escala[i][j/4][B]),sizeof(unsigned char),1,prueba);
                     fwrite(&(escala[i][j/4][G]),sizeof(unsigned char),1,prueba);
                     fwrite(&(escala[i][j/4][R]),sizeof(unsigned char),1,prueba);
                     fwrite(&(escala[i][j/4][A]),sizeof(unsigned char),1,prueba);
                 }
-
-
-              
             }
-
         }
     }
     fclose(prueba);
@@ -183,7 +174,6 @@ int ImageControl::saveImage(char *filename, int tag){
 
 bool ImageControl::nearlyBlack(int umbral){
     //cout << "Entraste a nearlyBlack" << endl;
-
     int countBlack=0;
     int countWhite=0;
     for(int i=0; i<imageHeight; i++)
@@ -197,7 +187,6 @@ bool ImageControl::nearlyBlack(int umbral){
                 countBlack++;
             }
         }
-
     }
     cout<<"Cantidad de Negros: "<<countBlack<<endl;
             cout<<"Cantidad de Blancos: "<<countWhite<<endl;
