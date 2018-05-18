@@ -11,11 +11,12 @@ using namespace std;
 #define G 1
 #define B 2
 #define A 3
+#define READ 0
+#define WWRITE 1
 int main(int argc, char **argv){
     pid_t my_pid=getpid(), parent_pid=getppid(),child_pids;
     cout <<"PID actual: "<< my_pid << endl;
     cout <<"PID padre: "<< parent_pid << endl;
-    //cout << child_pid << endl;
 
     //DECLARACION DE VARIABLES PARA ARGUMENTOS RECIBIDOS
     //c:cantidad de imágenes ; u: umbral; n: umbral para clasificacion; b: bandera(?)
@@ -38,8 +39,6 @@ int main(int argc, char **argv){
         }
 
     }
-    //cout << "hello hello" << endl;
-
     int i=0;
     //Se reserva memoria para guardar los valores de nearlyBlack de cada imagen
     int *nbValues=(int*)malloc(sizeof(int)*c);
@@ -47,6 +46,17 @@ int main(int argc, char **argv){
     std::string out;
     char inF[100];
     char outF[100];
+
+    int pipes[2];
+    if(pipe(pipes)<0){
+        cout << "ERROR AL CREAR PIPE EN MAIN.CPP\n";
+    }
+    close(pipes[0]);
+    write(pipes[1],&c,sizeof(c));
+    write(pipes[1],&u,sizeof(u));
+    write(pipes[1],&n,sizeof(u));
+    write(pipes[1],&b,sizeof(b));
+
     // -----> HASTA ACA EL PROCESO MAIN
 
     if(parent_pid==0){}
@@ -60,11 +70,11 @@ int main(int argc, char **argv){
         cout << "nombre salida " << outF << endl;
         ImageControl received;
         //received.loadBMP(inF);
-        if ( fork()==0 )
-            {
-            	execl("Pipelines/cargarImagen.o","cat",0,0);
-            	printf ("Si ves esto, no se pudo ejecutar el asdasdasdasd\n");
-                }
+        if ( fork()==0 ){
+            dup2(pipes[0],STDIN_FILENO);
+           	execl("Pipelines/cargarImagen.o","cat",0,0);
+           	printf ("Si ves esto, no se pudo ejecutar el asdasdasdasd\n");
+        }
 
 
         cout << "salimoh " <<endl;

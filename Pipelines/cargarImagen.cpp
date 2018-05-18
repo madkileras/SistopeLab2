@@ -1,9 +1,17 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <iostream>
 #include "imageControl.hpp"
+#include <string>
+#include <unistd.h>
+#include <iostream>
 
 #define R 0
 #define G 1
 #define B 2
 #define A 3
+using namespace std;
 int  main(int argc, char **argv){
 
 
@@ -86,7 +94,6 @@ int  main(int argc, char **argv){
         //cout<<"sali del ciclo "<<j<<" con i "<<i<<endl;
 
     }
-    //out <<"finciclo";
     fclose(f);
     cout << "Imagen cargada" <<endl;
 
