@@ -14,6 +14,15 @@
 using namespace std;
 int  main(int argc, char **argv){
 
+    int pipes[2];
+    int umbral, nImages, nUmbral,tag;
+    read(STDIN_FILENO,&nImages,sizeof(nImages));
+    read(STDIN_FILENO,&umbral,sizeof(umbral));
+    read(STDIN_FILENO,&nUmbral,sizeof(nUmbral));
+    read(STDIN_FILENO,&tag,sizeof(tag));
+    FILE *archivo;
+
+
 
 
     ImageControl instance;

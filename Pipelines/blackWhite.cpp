@@ -69,7 +69,7 @@ int main(int argc, char **argv){
 
     }
     else{
-        close(paip[1]);
+        //close(paip[1]);
         read(STDIN_FILENO,&nImages,sizeof(nImages));
         read(STDIN_FILENO,&umbral,sizeof(umbral));
         read(STDIN_FILENO,&nUmbral,sizeof(nUmbral));
