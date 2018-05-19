@@ -21,22 +21,23 @@ int  main(int argc, char **argv){
 
     //SE IMPRIME EL PIPE EN UN DOCUMENTO
     cout<<"woaaaai entre :$ "<<endl;
-    int pipes[2];
+    //int pipes[2];
     int umbral, nImages, nUmbral,tag;
     struct prueba p;
     read(100,&nImages,sizeof(nImages));
     read(100,&umbral,sizeof(umbral));
     read(100,&nUmbral,sizeof(nUmbral));
     read(100,&tag,sizeof(tag));
-    read(100,&p,sizeof(p));
+    //read(100,&p,sizeof(p));
+    /*
     ofstream myfile;
     myfile.open ("salida.txt");
     myfile <<nImages <<"\n";
     myfile <<umbral <<"\n";
     myfile <<nUmbral <<"\n";
     myfile <<tag <<"\n";
-    myfile <<"prueba: "<<p.b<<"\n";
-    myfile.close();
+    //myfile <<"prueba: "<<p.b<<"\n";
+    myfile.close();*/
     
 
 
@@ -121,7 +122,45 @@ int  main(int argc, char **argv){
 
     }
     fclose(f);
+
+
+    int pipes[2];
+    if(pipe(pipes)<0){
+        cout << "ERROR AL CREAR PIPE EN CARGARIMAGEN.CPP\n";
+    }
+    write(pipes[1],&nImages,sizeof(nImages));
+    write(pipes[1],&umbral,sizeof(umbral));
+    write(pipes[1],&nUmbral,sizeof(nUmbral));
+    write(pipes[1],&tag,sizeof(tag));
+    write(pipes[1],&instance,sizeof(instance));
+
+
     cout << "Imagen cargada" <<endl;
+    dup2(pipes[0],200);
+    close(pipes[0]);
+    ImageControl doi;
+    cout<<"aoiasdasdoiasd1 "<<endl;
+    int umbral2, nImages2, nUmbral2,tag2;
+    read(200,&nImages2,sizeof(nImages2));
+    cout<<"aoiasdasdoiasd2"<<endl;
+    read(200,&umbral2,sizeof(umbral2));
+    cout<<"aoiasdasdoiasd5";
+    cout<<umbral2<<endl;
+    read(200,&nUmbral2,sizeof(nUmbral2));
+    cout<<"aoiasdasdoiasd4"<<endl;
+    read(200,&tag2,sizeof(tag2));
+    cout<<"aoiasdasdoiasd3"<<endl;
+    read(200,&doi,sizeof(doi));
+    //cout<<"aoiasdasdoiasd\n";
+    ofstream myfile2;
+    myfile2.open ("salida.txt");
+    myfile2<<"tototot\n";
+    myfile2 <<"aqui tipo de imagen: "<<doi.type <<"\n";
+    myfile2 <<"aqui ofsset de imagen: "<<doi.offset <<"\n";
+    myfile2.close();
+    cout<<"aoiasdasdoiasd2\n";
+
+
 
     //return data;
 

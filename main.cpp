@@ -75,7 +75,7 @@ int main(int argc, char **argv){
     write(pipes[1],&u,sizeof(u));
     write(pipes[1],&n,sizeof(n));
     write(pipes[1],&b,sizeof(b));
-    write(pipes[1],&p,sizeof(p));
+    //write(pipes[1],&p,sizeof(p));
 
     // -----> HASTA ACA EL PROCESO MAIN
 
