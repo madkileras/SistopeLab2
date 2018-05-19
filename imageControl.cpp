@@ -5,10 +5,6 @@
 #define B 2
 #define A 3
 
-ImageControl::ImageControl(void)
-{
-    ;
-}
 
 //LEE PIXEL POR PIXEL Y LO GUARDA EN UNA MATRIZ ENTERA RGB
 //RETORNA UNA MATRIZ
@@ -237,7 +233,3 @@ int ImageControl::freeImages(){
 }
 
 
-ImageControl::~ImageControl(void)
-{
-    ;
-}

@@ -5,22 +5,39 @@
 #include "imageControl.hpp"
 #include <string>
 #include <unistd.h>
-#include <iostream>
+#include <fstream>
 
 #define R 0
 #define G 1
 #define B 2
 #define A 3
 using namespace std;
+
+struct prueba{
+    int a;
+    char b[5];
+}prueba;
 int  main(int argc, char **argv){
 
+    //SE IMPRIME EL PIPE EN UN DOCUMENTO
+    cout<<"woaaaai entre :$ "<<endl;
     int pipes[2];
     int umbral, nImages, nUmbral,tag;
-    read(STDIN_FILENO,&nImages,sizeof(nImages));
-    read(STDIN_FILENO,&umbral,sizeof(umbral));
-    read(STDIN_FILENO,&nUmbral,sizeof(nUmbral));
-    read(STDIN_FILENO,&tag,sizeof(tag));
-    FILE *archivo;
+    struct prueba p;
+    read(100,&nImages,sizeof(nImages));
+    read(100,&umbral,sizeof(umbral));
+    read(100,&nUmbral,sizeof(nUmbral));
+    read(100,&tag,sizeof(tag));
+    read(100,&p,sizeof(p));
+    ofstream myfile;
+    myfile.open ("salida.txt");
+    myfile <<nImages <<"\n";
+    myfile <<umbral <<"\n";
+    myfile <<nUmbral <<"\n";
+    myfile <<tag <<"\n";
+    myfile <<"prueba: "<<p.b<<"\n";
+    myfile.close();
+    
 
 
 
@@ -53,8 +70,8 @@ int  main(int argc, char **argv){
     //reservado=aux2;
     fread(&instance.tamMet, sizeof(int), 1, f);
     //cout << "imageWidth " << imageWidth << endl;
-    /*fread(&imageHeight,sizeof(int),1, f);
-    fread(&imageWidth,sizeof(int),1, f);
+    fread(&instance.imageHeight,sizeof(int),1, f);
+    fread(&instance.imageWidth,sizeof(int),1, f);/*
     //cout << "imageHeight " << imageHeight << endl;
     fread(&numeroP, sizeof(short), 1, f);
     fread(&prof, sizeof(short), 1, f);
