@@ -38,18 +38,16 @@ void escalaGrises(ImageControl *image){
 
 
 int  main(int argc, char **argv){
-
+    cout << "Inicia el proceso GrayScale"<<endl;
 
 
     int umbral, nImages, nUmbral,tag;
     ImageControl imagen;
-    read(100,&nImages,sizeof(nImages));
-    read(100,&umbral,sizeof(umbral));
-    read(100,&nUmbral,sizeof(nUmbral));
-    read(100,&tag,sizeof(tag));
-    read(100,&imagen,sizeof(imagen));
-
-    escalaGrises(&imagen);
+    read(200,&nImages,sizeof(nImages));
+    read(200,&umbral,sizeof(umbral));
+    read(200,&nUmbral,sizeof(nUmbral));
+    read(200,&tag,sizeof(tag));
+    
 
 
     int pipes[2];
@@ -60,18 +58,18 @@ int  main(int argc, char **argv){
     write(pipes[1],&umbral,sizeof(umbral));
     write(pipes[1],&nUmbral,sizeof(nUmbral));
     write(pipes[1],&tag,sizeof(tag));
-    write(pipes[1],&imagen,sizeof(imagen));
+    
+    
 
-    pid_t pid;
-
-     if(pid=fork()<0){
-        cout << "ERROR EN FORK PROCESO BLACKWHITE\n";
-    }
-    else if(pid==0){
-        dup2(pipes[0],300);
-        close(pipes[0]);
-        execl("Pipelines/nearlyBlack.o","cat",0,0);
-
-    }
+     if ( fork()==0 ){
+            dup2(pipes[0],300);
+            close(pipes[0]);
+           	execl("blackWhite.o","blackWhite",0,0);
+           	printf ("Si ves esto, no se pudo ejecutar el asdasdasdasd\n");
+        }
+    
+    
+    cout << "Termina el proceso GrayScale"<<endl;
+    return 0;
     
 }

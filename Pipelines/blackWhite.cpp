@@ -6,6 +6,7 @@
 #include <string>
 #include <unistd.h>
 #include <iostream>
+#include <sys/mman.h>
 
 #define R 0
 #define G 1
@@ -47,37 +48,37 @@ void blancoYnegro(int umbral, ImageControl *image){
 
 
 int main(int argc, char **argv){
-
-    int paip[2];
+    cout << "Inicia el Proceso Black White"<<endl;
+    
+    int pipes[2];
     char arguments[30]; 
     int umbral, nImages, nUmbral,tag;
-    pid_t pid;
-
-    ImageControl *image;
-
-    if(pipe(paip)==-1){
-        cout << "ERROR EN PIPE PROCESO BLACKWHITE\n";
+  
+    
+    
+    ImageControl instance;
+    
+    read(300,&nImages,sizeof(nImages));   
+    read(300,&umbral,sizeof(umbral));
+    read(300,&nUmbral,sizeof(nUmbral));
+    read(300,&tag,sizeof(tag));
+   
+       
+    
+    //esto lo muestra...
+  
+   if ( fork()==0 ){
+            dup2(pipes[0],400);
+                close(pipes[0]);
+           	execl("nearlyBlack.o","nearlyBlack","-d","asd",(char*)0);
+                
+           	printf ("Si ves esto, no se pudo ejecutar el Proceso BlackWhite\n");
     }
-    if(pid=fork()<0){
-        cout << "ERROR EN FORK PROCESO BLACKWHITE\n";
-    }
-    else if(pid==0){
-        close(paip[0]);
-        //blancoYnegro(umbral,image);
-        //read(paip[1]);
-        //write(paip[1],image,sizeof(image));
-
-    }
-    else{
-        //close(paip[1]);
-        read(STDIN_FILENO,&nImages,sizeof(nImages));
-        read(STDIN_FILENO,&umbral,sizeof(umbral));
-        read(STDIN_FILENO,&nUmbral,sizeof(nUmbral));
-        read(STDIN_FILENO,&tag,sizeof(tag));
-        read(STDIN_FILENO,image,sizeof(image));
-        blancoYnegro(umbral,image);
-
-    }
-    return 0;
+   
+  
+    
+     cout<<"Termina el proceso blackWhite"<<endl;
+     exit(1);
+    return 1;
 
 }

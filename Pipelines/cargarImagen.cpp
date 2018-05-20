@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <fstream>
 
+
 #define R 0
 #define G 1
 #define B 2
@@ -17,10 +18,13 @@ struct prueba{
     int a;
     char b[5];
 }prueba;
+
+
+
 int  main(int argc, char **argv){
 
     //SE IMPRIME EL PIPE EN UN DOCUMENTO
-    cout<<"woaaaai entre :$ "<<endl;
+    cout<<"\nInicia Proceso CargarImagen"<<endl;
     //int pipes[2];
     int umbral, nImages, nUmbral,tag;
     struct prueba p;
@@ -93,7 +97,7 @@ int  main(int argc, char **argv){
     int row_padded = (instance.imageWidth*4 + 4) & (~4);
     //cout << "row row_padded " << row_padded << endl;
     unsigned char* data = new unsigned char[row_padded];
-
+    
     int j=0;
     //cout << (imageWidth-1)*3;
     for(int i = 0; i < instance.imageHeight; i++)
@@ -102,7 +106,7 @@ int  main(int argc, char **argv){
        //cout << "Se cayo aquí"<<endl;
         instance.image[i]=(int**)malloc(sizeof(int*)*instance.imageWidth);
         fread(data, sizeof(unsigned char), row_padded, f);
-
+          
         for(j = 0; j < instance.imageWidth*4; j += 4)
         {
             //cout << "Se cayo acá"<<endl;
@@ -112,6 +116,7 @@ int  main(int argc, char **argv){
             instance.image[i][j/4]=(int*)malloc(sizeof(int)*4);
             //cout << "aqui: " << image[i][j/3] << " i: " << i <<" j: " << j << endl;
             instance.image[i][j/4][B]=(int)data[j];
+            
             //cout << "image2 " << image[i][j/3][R] << endl;
             instance.image[i][j/4][G]=(int)data[j+1];
             instance.image[i][j/4][R]=(int)data[j+2];
@@ -133,37 +138,34 @@ int  main(int argc, char **argv){
     write(pipes[1],&nUmbral,sizeof(nUmbral));
     write(pipes[1],&tag,sizeof(tag));
     write(pipes[1],&instance,sizeof(instance));
-
+ 
+    
+ 
+   
+    
+    //cout << imagenstring<<endl;
 
     cout << "Imagen cargada" <<endl;
-    dup2(pipes[0],200);
-    close(pipes[0]);
-    ImageControl doi;
-    cout<<"aoiasdasdoiasd1 "<<endl;
-    int umbral2, nImages2, nUmbral2,tag2;
-    read(200,&nImages2,sizeof(nImages2));
-    cout<<"aoiasdasdoiasd2"<<endl;
-    read(200,&umbral2,sizeof(umbral2));
-    cout<<"aoiasdasdoiasd5";
-    cout<<umbral2<<endl;
-    read(200,&nUmbral2,sizeof(nUmbral2));
-    cout<<"aoiasdasdoiasd4"<<endl;
-    read(200,&tag2,sizeof(tag2));
-    cout<<"aoiasdasdoiasd3"<<endl;
-    read(200,&doi,sizeof(doi));
-    //cout<<"aoiasdasdoiasd\n";
-    ofstream myfile2;
-    myfile2.open ("salida.txt");
-    myfile2<<"tototot\n";
-    myfile2 <<"aqui tipo de imagen: "<<doi.type <<"\n";
-    myfile2 <<"aqui ofsset de imagen: "<<doi.offset <<"\n";
-    myfile2.close();
-    cout<<"aoiasdasdoiasd2\n";
-
-
+    
+    
+    if ( fork()==0 ){
+            dup2(pipes[0],200);
+                close(pipes[0]);
+           	execl("grayScale.o","grayScale","-d","asd",(char*)0);
+                
+           	printf ("Si ves esto, no se pudo ejecutar el Proceso BlackWhite\n");
+    }
+    
+  
+    
+    cout<<"Termina el proceso cargarImagen"<<endl;
+    
+   
 
     //return data;
-
-    exit(1);
+    
+    exit(0);
     return 1;
 }
+
+ 
