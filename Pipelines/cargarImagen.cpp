@@ -17,10 +17,105 @@ struct prueba{
     int a;
     char b[5];
 }prueba;
+
+string passToString(ImageControl im, int width, int heigth){
+    string retorno="";
+    for(int i=0;i<width;i++){
+        for(int j=0;j<heigth;j++){
+            retorno+=std::to_string(im.image[i][j][R]);
+            retorno+=std::to_string(im.image[i][j][G]);
+            retorno+=std::to_string(im.image[i][j][B]);
+            retorno+=std::to_string(im.image[i][j][A]);
+
+        }
+    }
+    cout << retorno << endl;
+    return retorno;
+
+
+}
+
+void savePixels(ImageControl *im){
+    ofstream myfile ("imageName.txt");
+    myfile << im->imageHeight <<"\n"<< im->imageWidth <<"\n";
+    if (myfile.is_open())
+    {
+        for(int i=0;i<im->imageHeight;i++){
+            for(int j=0;j<im->imageWidth;j++){
+                myfile << im->image[i][j][R] << "\n" << im->image[i][j][G] << "\n" << im->image[i][j][B] << "\n" << im->image[i][j][A] << "\n";
+            }
+
+        }
+        myfile.close();
+    }
+
+}
+
+int*** getImage(string filename){
+    string line;
+    ifstream file (filename);
+    int count=0;
+    int count2=0;
+    int width,height;
+    width=height=0;
+    int ***retorno;
+    int i,j;
+    i=j=0;
+    if (file.is_open())
+    {
+        while ( getline (file,line) )
+        {
+            //cout << "linea: " << count2 << " valor: " << line << endl;
+            //count2++;
+            if(count==0){
+                width=stoi(line);
+                count++;
+            }
+            else if(count==1){
+                count++;
+                height=stoi(line);
+                retorno=(int***)malloc(sizeof(int**)*height);
+            }
+            else if (count==2){
+                //cout << "aquí entré" << endl;
+                retorno[i]=(int**)malloc(sizeof(int*)*width);
+                retorno[i][j]=(int*)malloc(sizeof(int)*4);
+                //cout << "aquí estoy" << endl;
+                retorno[i][j][R]=stoi(line);
+                //cout << "ya voy saliendo" << endl;
+                count++;
+            }
+            else if(count==3){
+                retorno[i][j][G]=stoi(line);
+                count++;
+
+            }
+            else if(count==4){
+                retorno[i][j][B]=stoi(line);
+                count++;
+            }
+            else{
+                retorno[i][j][A]=stoi(line);
+                count=2;
+                j++;
+                if(j==height){
+                    i++;
+                    j=0;
+                }
+            }
+        }
+        file.close();
+    }
+
+    return retorno;
+
+}
+
+
+
 int  main(int argc, char **argv){
 
     //SE IMPRIME EL PIPE EN UN DOCUMENTO
-    cout<<"woaaaai entre :$ "<<endl;
     //int pipes[2];
     int umbral, nImages, nUmbral,tag;
     struct prueba p;
@@ -122,6 +217,8 @@ int  main(int argc, char **argv){
 
     }
     fclose(f);
+    
+    savePixels(&instance);
 
 
     int pipes[2];
@@ -134,32 +231,29 @@ int  main(int argc, char **argv){
     write(pipes[1],&tag,sizeof(tag));
     write(pipes[1],&instance,sizeof(instance));
 
+    //pass2tring(instance,instance.imageWidth, instance.imageHeight);
+
 
     cout << "Imagen cargada" <<endl;
     dup2(pipes[0],200);
     close(pipes[0]);
     ImageControl doi;
-    cout<<"aoiasdasdoiasd1 "<<endl;
     int umbral2, nImages2, nUmbral2,tag2;
     read(200,&nImages2,sizeof(nImages2));
-    cout<<"aoiasdasdoiasd2"<<endl;
     read(200,&umbral2,sizeof(umbral2));
-    cout<<"aoiasdasdoiasd5";
-    cout<<umbral2<<endl;
     read(200,&nUmbral2,sizeof(nUmbral2));
-    cout<<"aoiasdasdoiasd4"<<endl;
     read(200,&tag2,sizeof(tag2));
-    cout<<"aoiasdasdoiasd3"<<endl;
     read(200,&doi,sizeof(doi));
-    //cout<<"aoiasdasdoiasd\n";
     ofstream myfile2;
     myfile2.open ("salida.txt");
-    myfile2<<"tototot\n";
     myfile2 <<"aqui tipo de imagen: "<<doi.type <<"\n";
     myfile2 <<"aqui ofsset de imagen: "<<doi.offset <<"\n";
     myfile2.close();
-    cout<<"aoiasdasdoiasd2\n";
 
+    ImageControl pruebita;
+    cout<<"obteniendo imagen\n";
+    pruebita.image=getImage("imageName.txt");
+    cout<<"imagen obtenida\n";
 
 
     //return data;
