@@ -36,6 +36,75 @@ void escalaGrises(ImageControl *image){
     return;
 }
 
+void savePixels(ImageControl *im){
+    ofstream myfile ("imageName.txt");
+    myfile << im->imageHeight <<"\n"<< im->imageWidth <<"\n";
+    if (myfile.is_open())
+    {
+        for(int i=0;i<im->imageHeight;i++){
+            for(int j=0;j<im->imageWidth;j++){
+                myfile << im->image[i][j][R] << "\n" << im->image[i][j][G] << "\n" << im->image[i][j][B] << "\n" << im->image[i][j][A] << "\n";
+            }
+
+        }
+        myfile.close();
+    }
+
+}
+
+int*** getImage(char *filename){
+    string line;
+    ifstream file (filename);
+    int count=0;
+    int width,height;
+    width=height=0;
+    int ***retorno;
+    int i,j;
+    i=j=0;
+    if (file.is_open())
+    {
+        while ( getline (file,line) )
+        {
+            if(count==0){
+                width=stoi(line);
+                count++;
+            }
+            else if(count==1){
+                count++;
+                height=stoi(line);
+                retorno=(int***)malloc(sizeof(int**)*height);
+            }
+            else if (count==2){
+                retorno[i]=(int**)malloc(sizeof(int*)*width);
+                retorno[i][j][R]=stoi(line);
+                count++;
+            }
+            else if(count==3){
+                retorno[i][j][G]=stoi(line);
+                count++;
+
+            }
+            else if(count==4){
+                retorno[i][j][B]=stoi(line);
+                count++;
+            }
+            else{
+                retorno[i][j][A]=stoi(line);
+                count=2;
+                j++;
+                if(j==height){
+                    i++;
+                    j=0;
+                }
+            }
+        }
+        file.close();
+    }
+
+    return retorno;
+
+}
+
 
 int  main(int argc, char **argv){
 
