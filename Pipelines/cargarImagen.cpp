@@ -22,7 +22,7 @@ struct prueba{
 
 
 void savePixels(ImageControl *im){
-    ofstream myfile ("imageName.txt");
+    ofstream myfile ("imageName.txt", ios::binary);
     myfile << im->imageHeight <<"\n"<< im->imageWidth <<"\n";
     if (myfile.is_open())
     {
@@ -39,7 +39,7 @@ void savePixels(ImageControl *im){
 
 int*** getImage(string filename){
     string line;
-    ifstream file (filename);
+    ifstream file (filename, ios::binary);
     int count=0;
     int count2=0;
     int width,height;
@@ -231,6 +231,8 @@ int  main(int argc, char **argv){
     cout << "Imagen cargada" <<endl;
     
     
+    
+    
     if ( fork()==0 ){
             dup2(pipes[0],200);
                 close(pipes[0]);
@@ -246,10 +248,7 @@ int  main(int argc, char **argv){
    
 
 
-    ImageControl pruebita;
-    cout<<"obteniendo imagen\n";
-    pruebita.image=getImage("imageName.txt");
-    cout<<"imagen obtenida\n";
+
 
 
     //return data;

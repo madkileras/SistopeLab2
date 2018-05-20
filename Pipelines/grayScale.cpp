@@ -20,24 +20,8 @@ int lum(int * pixel){
     return pixel[R]*0.3+pixel[G]*0.59+pixel[B]*0.11;
 }
 
-void escalaGrises(ImageControl *image){
-    image->escala= (int***)malloc(sizeof(int**)*image->imageHeight);
-    for (int i=0;i< image->imageHeight;i++){
-        image->escala[i]=(int**)malloc(sizeof(int*)*image->imageWidth);
-        for(int j=0;j<image->imageWidth;j++){
-                image->escala[i][j]=(int*)malloc(sizeof(int)*4);
-                //cout << lum(getRGBpixel(i,j))<<endl;
-                image->escala[i][j][B]=lum(getRGBpixel(i,j,image));
-                image->escala[i][j][R]=lum(getRGBpixel(i,j,image));
-                image->escala[i][j][G]=lum(getRGBpixel(i,j,image));
-                image->escala[i][j][A]=image->image[i][j][A];
-        }
-    }
-    return;
-}
-
 void savePixels(ImageControl *im){
-    ofstream myfile ("imageName.txt");
+    ofstream myfile ("imageName.txt", ios::binary);
     myfile << im->imageHeight <<"\n"<< im->imageWidth <<"\n";
     if (myfile.is_open())
     {
@@ -52,10 +36,11 @@ void savePixels(ImageControl *im){
 
 }
 
-int*** getImage(char *filename){
+int*** getImage(string filename){
     string line;
-    ifstream file (filename);
+    ifstream file (filename, ios::binary);
     int count=0;
+    int count2=0;
     int width,height;
     width=height=0;
     int ***retorno;
@@ -65,6 +50,8 @@ int*** getImage(char *filename){
     {
         while ( getline (file,line) )
         {
+            //cout << "linea: " << count2 << " valor: " << line << endl;
+            //count2++;
             if(count==0){
                 width=stoi(line);
                 count++;
@@ -75,8 +62,12 @@ int*** getImage(char *filename){
                 retorno=(int***)malloc(sizeof(int**)*height);
             }
             else if (count==2){
+                //cout << "aquí entré" << endl;
                 retorno[i]=(int**)malloc(sizeof(int*)*width);
+                retorno[i][j]=(int*)malloc(sizeof(int)*4);
+                //cout << "aquí estoy" << endl;
                 retorno[i][j][R]=stoi(line);
+                //cout << "ya voy saliendo" << endl;
                 count++;
             }
             else if(count==3){
@@ -105,22 +96,33 @@ int*** getImage(char *filename){
 
 }
 
+void escalaGrises(ImageControl *image){
+    image->escala= (int***)malloc(sizeof(int**)*image->imageHeight);
+    for (int i=0;i< image->imageHeight;i++){
+        image->escala[i]=(int**)malloc(sizeof(int*)*image->imageWidth);
+        for(int j=0;j<image->imageWidth;j++){
+                image->escala[i][j]=(int*)malloc(sizeof(int)*4);
+                //cout << lum(getRGBpixel(i,j))<<endl;
+                image->escala[i][j][B]=lum(getRGBpixel(i,j,image));
+                image->escala[i][j][R]=lum(getRGBpixel(i,j,image));
+                image->escala[i][j][G]=lum(getRGBpixel(i,j,image));
+                image->escala[i][j][A]=image->image[i][j][A];
+        }
+    }
+    return;
+}
+
+
+
 
 int  main(int argc, char **argv){
         cout << "Inicia el proceso GrayScale"<<endl;
-
-
+    ///read desde el pipe 200
+    
+    
     int umbral, nImages, nUmbral,tag;
     ImageControl imagen;
-    read(100,&nImages,sizeof(nImages));
-    read(100,&umbral,sizeof(umbral));
-    read(100,&nUmbral,sizeof(nUmbral));
-    read(100,&tag,sizeof(tag));
-    read(100,&imagen,sizeof(imagen));
-
-    escalaGrises(&imagen);
-
-
+    imagen.image=getImage("imageName.txt");
     int pipes[2];
     if(pipe(pipes)<0){
         cout << "ERROR AL CREAR PIPE EN CARGARIMAGEN.CPP\n";
@@ -129,9 +131,7 @@ int  main(int argc, char **argv){
     write(pipes[1],&umbral,sizeof(umbral));
     write(pipes[1],&nUmbral,sizeof(nUmbral));
     write(pipes[1],&tag,sizeof(tag));
-    write(pipes[1],&imagen,sizeof(imagen));
-
-    pid_t pid;
+ 
     if ( fork()==0 ){
                 dup2(pipes[0],300);
                 close(pipes[0]);
