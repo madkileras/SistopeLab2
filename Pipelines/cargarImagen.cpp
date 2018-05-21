@@ -22,7 +22,7 @@ struct prueba{
 
 
 void savePixels(ImageControl *im){
-    ofstream myfile ("imageName.txt", ios::binary);
+    ofstream myfile ("imageName.txt");
     myfile << im->imageHeight <<"\n"<< im->imageWidth <<"\n";
     if (myfile.is_open())
     {
@@ -37,14 +37,20 @@ void savePixels(ImageControl *im){
 
 }
 
-int*** getImage(string filename){
+int*** getImage(string filename,ImageControl *im,int width,int height){
     string line;
-    ifstream file (filename, ios::binary);
+    ifstream file (filename);
     int count=0;
     int count2=0;
-    int width,height;
-    width=height=0;
-    int ***retorno;
+
+  
+    int ***retorno=(int***)malloc(sizeof(int**)*height);
+    for(int y=0;y<height;y++){
+        retorno[y]=(int**)malloc(sizeof(int**)*width);
+        for(int u=0;u<width;u++){
+            retorno[y][u]=(int*)malloc(sizeof(int)*4);
+        }
+    }
     int i,j;
     i=j=0;
     if (file.is_open())
@@ -60,43 +66,50 @@ int*** getImage(string filename){
             else if(count==1){
                 count++;
                 height=stoi(line);
-                retorno=(int***)malloc(sizeof(int**)*height);
+                
             }
             else if (count==2){
                 //cout << "aquí entré" << endl;
-                retorno[i]=(int**)malloc(sizeof(int*)*width);
-                retorno[i][j]=(int*)malloc(sizeof(int)*4);
+               
                 //cout << "aquí estoy" << endl;
                 retorno[i][j][R]=stoi(line);
                 //cout << "ya voy saliendo" << endl;
                 count++;
+               
+                 
             }
             else if(count==3){
                 retorno[i][j][G]=stoi(line);
                 count++;
-
             }
             else if(count==4){
                 retorno[i][j][B]=stoi(line);
                 count++;
+                
             }
             else{
                 retorno[i][j][A]=stoi(line);
                 count=2;
                 j++;
+               
+                
                 if(j==height){
-                    i++;
+                    i=i+1;
                     j=0;
+                    
+                    
                 }
+               
             }
         }
         file.close();
     }
-
+    
+    
+    
     return retorno;
 
 }
-
 
 
 int  main(int argc, char **argv){
@@ -215,6 +228,9 @@ int  main(int argc, char **argv){
     if(pipe(pipes)<0){
         cout << "ERROR AL CREAR PIPE EN CARGARIMAGEN.CPP\n";
     }
+    
+    
+    
     write(pipes[1],&nImages,sizeof(nImages));
     write(pipes[1],&umbral,sizeof(umbral));
     write(pipes[1],&nUmbral,sizeof(nUmbral));

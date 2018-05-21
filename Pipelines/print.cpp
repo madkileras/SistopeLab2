@@ -110,60 +110,85 @@ int*** getImage(string filename,ImageControl *im,int width,int height){
 
 }
 
-void escalaGrises(ImageControl *image){
-    image->escala= (int***)malloc(sizeof(int**)*image->imageHeight);
-    for (int i=0;i< image->imageHeight;i++){
-        image->escala[i]=(int**)malloc(sizeof(int*)*image->imageWidth);
-        for(int j=0;j<image->imageWidth;j++){
-                image->escala[i][j]=(int*)malloc(sizeof(int)*4);
-                //cout << lum(getRGBpixel(i,j))<<endl;
-                image->escala[i][j][B]=lum(getRGBpixel(i,j,image));
-                image->escala[i][j][R]=lum(getRGBpixel(i,j,image));
-                image->escala[i][j][G]=lum(getRGBpixel(i,j,image));
-                image->escala[i][j][A]=image->image[i][j][A];
+int saveImage(char *filename, int tag,ImageControl * imagen){
+   
+    FILE *prueba;
+    prueba=fopen(filename,"wb");
+    fwrite(&imagen->header,1,imagen->offset,prueba);
+    if (true){
+        //cout << "Height " << imagenHeight << endl;
+        //cout << "Width " << imagenWidth << endl;
+        for(int i=0; i<imagen->imageHeight ; i++)
+        {
+            for(int j = 0; j < imagen->imageWidth*4; j += 4)
+            {
+                if(tag==0){
+                    fwrite(&(imagen->image[i][j/4][B]),sizeof(unsigned char),1,prueba);
+                    fwrite(&(imagen->image[i][j/4][G]),sizeof(unsigned char),1,prueba);
+                    fwrite(&(imagen->image[i][j/4][R]),sizeof(unsigned char),1,prueba);
+                    fwrite(&(imagen->image[i][j/4][A]),sizeof(unsigned char),1,prueba);
+                }
+                else if(tag==1){
+                    fwrite(&(imagen->byn[i][j/4][B]),sizeof(unsigned char),1,prueba);
+                    fwrite(&(imagen->byn[i][j/4][G]),sizeof(unsigned char),1,prueba);
+                    fwrite(&(imagen->byn[i][j/4][R]),sizeof(unsigned char),1,prueba);
+                    fwrite(&(imagen->byn[i][j/4][A]),sizeof(unsigned char),1,prueba);
+                }
+                else{
+                    fwrite(&(imagen->escala[i][j/4][B]),sizeof(unsigned char),1,prueba);
+                    fwrite(&(imagen->escala[i][j/4][G]),sizeof(unsigned char),1,prueba);
+                    fwrite(&(imagen->escala[i][j/4][R]),sizeof(unsigned char),1,prueba);
+                    fwrite(&(imagen->escala[i][j/4][A]),sizeof(unsigned char),1,prueba);
+                }
+            }
         }
     }
-    return;
+    fclose(prueba);
+    return 0;
 }
 
 
-
-
 int  main(int argc, char **argv){
-        cout << "Inicia el proceso GrayScale"<<endl;
+        cout << "Inicia el proceso PRINT"<<endl;
     ///read desde el pipe 200
     
     
-    int umbral, nImages, nUmbral,tag;
-    ImageControl imagen;
-    
-    read(200,&nImages,sizeof(nImages));
-    read(200,&umbral,sizeof(umbral));
-    read(200,&nUmbral,sizeof(nUmbral));
-    read(200,&tag,sizeof(tag));
-    read(200,&imagen,sizeof(imagen));
-    cout<<"Cargando imagen"<<endl;
-    imagen.image=getImage("imageName.txt",&imagen,imagen.imageWidth,imagen.imageHeight);
-    
-    escalaGrises(&imagen);
-    
     int pipes[2];
-    if(pipe(pipes)<0){
-        cout << "ERROR AL CREAR PIPE EN CARGARIMAGEN.CPP\n";
+    char arguments[30]; 
+    int umbral, nImages, nUmbral,tag;
+  
+    
+    
+    ImageControl imagen;
+    bool nearly;
+    read(500,&nImages,sizeof(nImages));   
+    read(500,&umbral,sizeof(umbral));
+    read(500,&nUmbral,sizeof(nUmbral));
+    read(500,&tag,sizeof(tag));
+    read(500,&imagen,sizeof(imagen));
+    read(500,&nearly,sizeof(nearly));
+    
+    
+   
+    cout << "imagen byn guardada"<<endl;
+    if (nearly==1){
+                cout << "|   imagen_" << "asd" << "  | nearlyBlack: yes   |" << endl;
+                
+            }
+            else{
+                cout << "|   imagen_" << "asd" << "  | nearlyBlack: no    |" << endl;  
     }
-    write(pipes[1],&nImages,sizeof(nImages));
-    write(pipes[1],&umbral,sizeof(umbral));
-    write(pipes[1],&nUmbral,sizeof(nUmbral));
-    write(pipes[1],&tag,sizeof(tag));
-    write(pipes[1],&imagen,sizeof(imagen));
+    //ACA SE PEGAAAAA
+   /* cout << "carga imagen"<<endl;
+    imagen.byn=getImage("imageName.txt",&imagen,imagen.imageWidth,imagen.imageHeight);
+    cout << "imagen cargada"<<endl;*/
+
+    saveImage("test.bmp",1,&imagen);
+   
+    
+    
     
  
-    if ( fork()==0 ){
-                dup2(pipes[0],300);
-                close(pipes[0]);
-                    execl("blackWhite.o","blackWhite",0,0);
-                    printf ("Si ves esto, no se pudo ejecutar el asdasdasdasd\n");
-            }
-    cout << "Termina el proceso GrayScale"<<endl;
+    return 0;
 
 }
