@@ -6,7 +6,8 @@
 #include <string>
 #include <unistd.h>
 #include <iostream>
-
+ #include <sys/wait.h>
+ #include <sys/types.h>
 #define R 0
 #define G 1
 #define B 2
@@ -37,8 +38,8 @@ bool nearlyBlack(int umbral,ImageControl* image){
             }
         }
     }
-    cout<<"Cantidad de Negros: "<<countBlack<<endl;
-    cout<<"Cantidad de Blancos: "<<countWhite<<endl;
+  //  cout<<"Cantidad de Negros: "<<countBlack<<endl;
+    //cout<<"Cantidad de Blancos: "<<countWhite<<endl;
 
     if(countBlack>countWhite){
         return true;
@@ -154,7 +155,7 @@ int*** getImage(string filename,ImageControl *im,int width,int height){
 
 int main(int argc, char **argv){
 
-    cout<<"Inicia el proceso NearlyBlack"<<endl;
+  //  cout<<"Inicia el proceso NearlyBlack"<<endl;
     int pipes[2];
     char arguments[30]; 
     char inF[100];
@@ -183,7 +184,7 @@ int main(int argc, char **argv){
         cout << "ERROR AL CREAR PIPE EN CARGARIMAGEN.CPP\n";
     }
     
-    cout<<"nearly black " <<inF << " " << outF<<endl;
+   // cout<<"nearly black " <<inF << " " << outF<<endl;
     write(pipes[1],&nImages,sizeof(nImages));
     write(pipes[1],&umbral,sizeof(umbral));
     write(pipes[1],&nUmbral,sizeof(nUmbral));
@@ -194,7 +195,7 @@ int main(int argc, char **argv){
     write(pipes[1],&nearly,sizeof(nearly));
     
     
-    cout<< nearly <<endl;
+  //  cout<< nearly <<endl;
    if ( fork()==0 ){
             dup2(pipes[0],500);
                 close(pipes[0]);
@@ -202,9 +203,9 @@ int main(int argc, char **argv){
                 
            	printf ("Si ves esto, no se pudo ejecutar el Proceso Print desde nearlyBlack\n");
     }
-   
+   while (wait( NULL )>0);
   
-     cout<<"Termina el proceso NearlyBlack"<<endl;
+   //  cout<<"Termina el proceso NearlyBlack"<<endl;
      exit(0);
     return 1;
 

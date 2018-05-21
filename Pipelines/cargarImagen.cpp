@@ -7,7 +7,8 @@
 #include <unistd.h>
 #include <fstream>
 
-
+ #include <sys/wait.h>
+ #include <sys/types.h>
 #define R 0
 #define G 1
 #define B 2
@@ -116,7 +117,7 @@ int  main(int argc, char **argv){
 
     //SE IMPRIME EL PIPE EN UN DOCUMENTO
 
-    cout<<"\nInicia Proceso CargarImagen"<<endl;
+  // cout<<"\nInicia Proceso CargarImagen"<<endl;
 
     //int pipes[2];
     int umbral, nImages, nUmbral,tag;
@@ -131,7 +132,7 @@ int  main(int argc, char **argv){
     char aux1[100], aux2[100];
     strcpy(aux1,inF);
     strcpy(aux2,outF);
-    cout<<"inf "<<inF << " outF " << outF <<endl;
+    //cout<<"inf "<<inF << " outF " << outF <<endl;
 
 
     ImageControl instance;
@@ -224,7 +225,7 @@ int  main(int argc, char **argv){
     }
     //cout<<"inf "<<aux1 << " outF " << aux2 <<endl;
     
-    cout<<"cargarImagen " <<inF << " " << outF<<endl;
+    //cout<<"cargarImagen " <<inF << " " << outF<<endl;
     write(pipes[1],&nImages,sizeof(nImages));
     write(pipes[1],&umbral,sizeof(umbral));
     write(pipes[1],&nUmbral,sizeof(nUmbral));
@@ -248,10 +249,10 @@ int  main(int argc, char **argv){
                 
            	printf ("Si ves esto, no se pudo ejecutar el Proceso grayScale en cargarImagen\n");
     }
-    
+    while (wait( NULL )>0);
   
     
-    cout<<"Termina el proceso cargarImagen"<<endl;
+    //cout<<"Termina el proceso cargarImagen"<<endl;
     
    
 

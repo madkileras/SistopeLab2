@@ -1,1 +1,1 @@
-pipeline: main.cpp imageControl.cpp; g++ -std=c++11 -o pipeline main.cpp imageControl.cpp -I.
+pipeline: main.cpp cargarImagen.cpp nearlyBlack.cpp blackWhite.cpp print.cpp grayScale.cpp; g++ -std=c++11 cargarImagen.cpp -o cargarImagen.o && g++ -std=c++11 main.cpp -o pipeline && g++ -std=c++11 blackWhite.cpp -o blackWhite.o && g++ -std=c++11 grayScale.cpp -o grayScale.o && g++ -std=c++11 print.cpp -o print.o && g++ -std=c++11 nearlyBlack.cpp -o nearlyBlack.o -I.

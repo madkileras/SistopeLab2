@@ -6,6 +6,8 @@
 #include <string>
 #include <unistd.h>
 #include <iostream>
+ #include <sys/wait.h>
+ #include <sys/types.h>
 using namespace std;
 #define R 0
 #define G 1
@@ -17,8 +19,7 @@ using namespace std;
 
 int main(int argc, char **argv){
     pid_t my_pid=getpid(), parent_pid=getppid(),child_pids;
-    cout <<"PID actual 2: "<< my_pid << endl;
-    cout <<"PID padre: "<< parent_pid << endl;
+    
 
     //DECLARACION DE VARIABLES PARA ARGUMENTOS RECIBIDOS
     //c:cantidad de imágenes ; u: umbral; n: umbral para clasificacion; b: bandera(?)
@@ -55,21 +56,22 @@ int main(int argc, char **argv){
         cout << "ERROR AL CREAR PIPE EN MAIN.CPP\n";
     }
     //SE IMPRIMEN VALORES PARA VERIFICAR PIPE
-    cout << "c "<<c<<" u "<<u<<" n "<<n<<" b "<<b<<endl;
+   // cout << "c "<<c<<" u "<<u<<" n "<<n<<" b "<<b<<endl;
     //SE ESCRIBE EL PIPE
     
     //write(pipes[1],&p,sizeof(p));
 
     // -----> HASTA ACA EL PROCESO MAIN
-
+    int lock=0;
+       cout << endl << "Resultados:" << endl;
+        cout << "|    image          |    nearly_black    |"<<endl;
     //Se recorren todas la imagenes, se procesan y se guardan
-
+    while (i<c){
         in="imagen_"+std::to_string(i+1)+".bmp";
         out="imagenSalida_"+std::to_string(i+1)+".bmp";
         sprintf(inF,in.c_str());
         sprintf(outF,out.c_str());
-        cout << "nombre entrada " << inF << endl;
-        cout << "nombre salida " << outF << endl;
+       
         ImageControl received;
         write(pipes[1],&c,sizeof(c));
         write(pipes[1],&u,sizeof(u));
@@ -77,18 +79,24 @@ int main(int argc, char **argv){
         write(pipes[1],&b,sizeof(b));
         write(pipes[1],&inF,sizeof(inF));
         write(pipes[1],&outF,sizeof(outF));
-
-
-
-
+        pid_t child_pid, wpid;
+        int status = 0;
         //received.loadBMP(inF);
-        if ( fork()==0 ){
-            dup2(pipes[0],100);
-            close(pipes[0]);
-           	execl("cargarImagen.o","cargarImagen",0,0);
-           	printf ("Si ves esto, no se pudo ejecutar el proceso cargar imagen\n");
-        }
+    
+            if ( child_pid=fork()==0 ){
+                    dup2(pipes[0],100);
+                    close(pipes[0]);
+                    execl("cargarImagen.o","cargarImagen",0,0);                   
+                    printf ("Si ves esto, no se pudo ejecutar el proceso cargar imagen\n");
+                    exit(0);
+                   
+            }
+            while (wait( NULL )>0); // this way, the father waits for all the child processes 
 
+            i=i+1;
+        
+        
+    }
 
         //cout << "salimoh " <<endl;
         /*received.blancoYnegro(u);
@@ -124,7 +132,7 @@ int main(int argc, char **argv){
     }
     
    */
-  
+  remove("imageName.txt");
 
   
     return 0;

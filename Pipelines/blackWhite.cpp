@@ -7,7 +7,8 @@
 #include <unistd.h>
 #include <iostream>
 #include <sys/mman.h>
-
+ #include <sys/wait.h>
+ #include <sys/types.h>
 #define R 0
 #define G 1
 #define B 2
@@ -147,7 +148,7 @@ void blancoYnegro(int umbral, ImageControl *image){
 
 
 int main(int argc, char **argv){
-    cout << "Inicia el Proceso Black White"<<endl;
+    //cout << "Inicia el Proceso Black White"<<endl;
      
     
     int umbral, nImages, nUmbral,tag;
@@ -177,7 +178,7 @@ int main(int argc, char **argv){
     if(pipe(pipes)<0){
         cout << "ERROR AL CREAR PIPE EN CARGARIMAGEN.CPP\n";
     }
-    cout<<"blackwhite " <<inF << " " << outF<<endl;
+   // cout<<"blackwhite " <<inF << " " << outF<<endl;
     write(pipes[1],&nImages,sizeof(nImages));
     write(pipes[1],&umbral,sizeof(umbral));
     write(pipes[1],&nUmbral,sizeof(nUmbral));
@@ -195,9 +196,10 @@ int main(int argc, char **argv){
            	printf ("Si ves esto, no se pudo ejecutar el Proceso nearlyBlack desde blackWhite\n");
     }
    
+  while (wait( NULL )>0);
   
     
-     cout<<"Termina el proceso blackWhite"<<endl;
+    // cout<<"Termina el proceso blackWhite"<<endl;
      exit(1);
     return 1;
 

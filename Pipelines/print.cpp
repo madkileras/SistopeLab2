@@ -170,7 +170,7 @@ int saveImage(char *filename, int tag,ImageControl * imagen){
 
 
 int  main(int argc, char **argv){
-        cout << "Inicia el proceso PRINT"<<endl;
+     //   cout << "Inicia el proceso PRINT"<<endl;
     ///read desde el pipe 200
     
     
@@ -211,9 +211,9 @@ int  main(int argc, char **argv){
     getHeader(inF,imagen.offset,&imagen);
     //cout<<"getting header2 "<<inF<<" "<<outF<<endl;
     imagen.byn=getImage("imageName.txt",&imagen,imagen.imageWidth,imagen.imageHeight);
-    cout<<"guardando imagen en "<<aux<<endl;
+  //  cout<<"guardando imagen en "<<aux<<endl;
     saveImage(aux,1,&imagen);
-    cout<<"PROCESO TERMINADO DE IMAGEN"<<endl;
+    //cout<<"PROCESO TERMINADO DE IMAGEN"<<endl;
    
     
     

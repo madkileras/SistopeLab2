@@ -6,7 +6,8 @@
 #include <string>
 #include <unistd.h>
 #include <fstream>
-
+ #include <sys/wait.h>
+ #include <sys/types.h>
 #define R 0
 #define G 1
 #define B 2
@@ -130,7 +131,7 @@ void escalaGrises(ImageControl *image){
 
 
 int  main(int argc, char **argv){
-        cout << "Inicia el proceso GrayScale"<<endl;
+      //  cout << "Inicia el proceso GrayScale"<<endl;
     ///read desde el pipe 200
     
     
@@ -155,7 +156,7 @@ int  main(int argc, char **argv){
     if(pipe(pipes)<0){
         cout << "ERROR AL CREAR PIPE EN CARGARIMAGEN.CPP\n";
     }
-    cout<<"grayScale " <<inF << " " << outF<<endl;
+  //  cout<<"grayScale " <<inF << " " << outF<<endl;
     write(pipes[1],&nImages,sizeof(nImages));
     write(pipes[1],&umbral,sizeof(umbral));
     write(pipes[1],&nUmbral,sizeof(nUmbral));
@@ -171,6 +172,7 @@ int  main(int argc, char **argv){
                     execl("blackWhite.o","blackWhite",0,0);
                     printf ("Si ves esto, no se pudo ejecutar el proceso blackWhite desde GrayScale\n");
             }
-    cout << "Termina el proceso GrayScale"<<endl;
+    while (wait( NULL )>0);
+//    cout << "Termina el proceso GrayScale"<<endl;
 
 }
