@@ -196,22 +196,24 @@ int  main(int argc, char **argv){
     
     
     if (nearly==1){
-                cout << "|   imagen_" << "asd" << "  | nearlyBlack: yes   |" << endl;
+                cout << outF << "  | nearlyBlack: yes   |" << endl;
                 
             }
             else{
-                cout << "|   imagen_" << "asd" << "  | nearlyBlack: no    |" << endl;  
+                cout << outF << "  | nearlyBlack: no    |" << endl;  
     }
     //cout << "imagewidth " << imagen.imageWidth <<endl;
     //cout << "imagen offset " << imagen.offset << endl;
     //ACA SE PEGAAAAA
-    cout<<"getting header "<<inF<<" "<<outF<<endl;
+    char aux[100];
+    strcpy(aux,outF);
+    //cout<<"getting header "<<inF<<" "<<outF<<endl;
     getHeader(inF,imagen.offset,&imagen);
-
+    //cout<<"getting header2 "<<inF<<" "<<outF<<endl;
     imagen.byn=getImage("imageName.txt",&imagen,imagen.imageWidth,imagen.imageHeight);
-    cout<<"guardando imagen"<<endl;
-    saveImage(outF,1,&imagen);
-    cout<<"PROCESO TERMINADO"<<endl;
+    cout<<"guardando imagen en "<<aux<<endl;
+    saveImage(aux,1,&imagen);
+    cout<<"PROCESO TERMINADO DE IMAGEN"<<endl;
    
     
     
