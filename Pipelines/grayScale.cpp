@@ -136,13 +136,17 @@ int  main(int argc, char **argv){
     
     int umbral, nImages, nUmbral,tag;
     ImageControl imagen;
+    char inF[100];
+    char outF[100];
     
     read(200,&nImages,sizeof(nImages));
     read(200,&umbral,sizeof(umbral));
     read(200,&nUmbral,sizeof(nUmbral));
     read(200,&tag,sizeof(tag));
+    read(200,&inF,sizeof(inF));
+    read(200,&outF,sizeof(outF));
     read(200,&imagen,sizeof(imagen));
-    cout<<"Cargando imagen"<<endl;
+    //cout<<"Cargando imagen"<<endl;
     imagen.image=getImage("imageName.txt",&imagen,imagen.imageWidth,imagen.imageHeight);
     
     escalaGrises(&imagen);
@@ -151,10 +155,13 @@ int  main(int argc, char **argv){
     if(pipe(pipes)<0){
         cout << "ERROR AL CREAR PIPE EN CARGARIMAGEN.CPP\n";
     }
+    cout<<"grayScale " <<inF << " " << outF<<endl;
     write(pipes[1],&nImages,sizeof(nImages));
     write(pipes[1],&umbral,sizeof(umbral));
     write(pipes[1],&nUmbral,sizeof(nUmbral));
     write(pipes[1],&tag,sizeof(tag));
+    write(pipes[1],&inF,sizeof(inF));
+    write(pipes[1],&outF,sizeof(outF));
     write(pipes[1],&imagen,sizeof(imagen));
     
  
@@ -162,7 +169,7 @@ int  main(int argc, char **argv){
                 dup2(pipes[0],300);
                 close(pipes[0]);
                     execl("blackWhite.o","blackWhite",0,0);
-                    printf ("Si ves esto, no se pudo ejecutar el asdasdasdasd\n");
+                    printf ("Si ves esto, no se pudo ejecutar el proceso blackWhite desde GrayScale\n");
             }
     cout << "Termina el proceso GrayScale"<<endl;
 

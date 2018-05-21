@@ -15,18 +15,6 @@ using namespace std;
 #define WRITE 1
 
 
-struct prueba{
-    int a;
-    char b[5];
-}prueba;
-
-struct prueba initP(struct prueba p){
-        p.a=30;
-        strcpy(p.b,"hola");
-        return p;
-}
-
-
 int main(int argc, char **argv){
     pid_t my_pid=getpid(), parent_pid=getppid(),child_pids;
     cout <<"PID actual 2: "<< my_pid << endl;
@@ -68,13 +56,8 @@ int main(int argc, char **argv){
     }
     //SE IMPRIMEN VALORES PARA VERIFICAR PIPE
     cout << "c "<<c<<" u "<<u<<" n "<<n<<" b "<<b<<endl;
-    struct prueba p;
-    p=initP(p);
     //SE ESCRIBE EL PIPE
-    write(pipes[1],&c,sizeof(c));
-    write(pipes[1],&u,sizeof(u));
-    write(pipes[1],&n,sizeof(n));
-    write(pipes[1],&b,sizeof(b));
+    
     //write(pipes[1],&p,sizeof(p));
 
     // -----> HASTA ACA EL PROCESO MAIN
@@ -88,6 +71,13 @@ int main(int argc, char **argv){
         cout << "nombre entrada " << inF << endl;
         cout << "nombre salida " << outF << endl;
         ImageControl received;
+        write(pipes[1],&c,sizeof(c));
+        write(pipes[1],&u,sizeof(u));
+        write(pipes[1],&n,sizeof(n));
+        write(pipes[1],&b,sizeof(b));
+        write(pipes[1],&inF,sizeof(inF));
+        write(pipes[1],&outF,sizeof(outF));
+
 
 
 
@@ -96,11 +86,11 @@ int main(int argc, char **argv){
             dup2(pipes[0],100);
             close(pipes[0]);
            	execl("cargarImagen.o","cargarImagen",0,0);
-           	printf ("Si ves esto, no se pudo ejecutar el asdasdasdasd\n");
+           	printf ("Si ves esto, no se pudo ejecutar el proceso cargar imagen\n");
         }
 
 
-        cout << "salimoh " <<endl;
+        //cout << "salimoh " <<endl;
         /*received.blancoYnegro(u);
         received.escalaGrises();
         sprintf(outF,out.c_str());

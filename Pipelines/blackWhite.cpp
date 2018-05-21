@@ -140,7 +140,7 @@ void blancoYnegro(int umbral, ImageControl *image){
             }
         }
     }
-    cout<<("imagen blanco y negro procesada\n");
+    //cout<<("imagen blanco y negro procesada\n");
     return;
 }
 
@@ -151,6 +151,8 @@ int main(int argc, char **argv){
      
     
     int umbral, nImages, nUmbral,tag;
+    char inF[100];
+    char outF[100];
   
     
     
@@ -160,23 +162,28 @@ int main(int argc, char **argv){
     read(300,&umbral,sizeof(umbral));
     read(300,&nUmbral,sizeof(nUmbral));
     read(300,&tag,sizeof(tag));
+    read(300,&inF,sizeof(inF));
+    read(300,&outF,sizeof(outF));
     read(300,&imagen,sizeof(imagen));
-    cout << "carga imagen"<<endl;
+    //cout << "carga imagen"<<endl;
     imagen.image=getImage("imageName.txt",&imagen,imagen.imageWidth,imagen.imageHeight);
-    cout << "imagen cargada"<<endl;
+    //cout << "imagen cargada"<<endl;
 
     blancoYnegro(umbral,&imagen);
     savePixels(&imagen,1);
-    cout << "imagen byn guardada"<<endl;
+    //cout << "imagen byn guardada"<<endl;
     
     int pipes[2];
     if(pipe(pipes)<0){
         cout << "ERROR AL CREAR PIPE EN CARGARIMAGEN.CPP\n";
     }
+    cout<<"blackwhite " <<inF << " " << outF<<endl;
     write(pipes[1],&nImages,sizeof(nImages));
     write(pipes[1],&umbral,sizeof(umbral));
     write(pipes[1],&nUmbral,sizeof(nUmbral));
     write(pipes[1],&tag,sizeof(tag));
+    write(pipes[1],&inF,sizeof(inF));
+    write(pipes[1],&outF,sizeof(outF));
     write(pipes[1],&imagen,sizeof(imagen));
     //esto lo muestra...
   
@@ -185,7 +192,7 @@ int main(int argc, char **argv){
                 close(pipes[0]);
            	execl("nearlyBlack.o","nearlyBlack","-d","asd",(char*)0);
                 
-           	printf ("Si ves esto, no se pudo ejecutar el Proceso BlackWhite\n");
+           	printf ("Si ves esto, no se pudo ejecutar el Proceso nearlyBlack desde blackWhite\n");
     }
    
   

@@ -157,6 +157,8 @@ int main(int argc, char **argv){
     cout<<"Inicia el proceso NearlyBlack"<<endl;
     int pipes[2];
     char arguments[30]; 
+    char inF[100];
+    char outF[100];
     int umbral, nImages, nUmbral,tag;
   
     
@@ -167,20 +169,27 @@ int main(int argc, char **argv){
     read(400,&umbral,sizeof(umbral));
     read(400,&nUmbral,sizeof(nUmbral));
     read(400,&tag,sizeof(tag));
+    read(400,&inF,sizeof(inF));
+    read(400,&outF,sizeof(outF));
     read(400,&imagen,sizeof(imagen));
     
-    cout << "carga imagen"<<endl;
+    //cout << "carga imagen"<<endl;
     imagen.byn=getImage("imageName.txt",&imagen,imagen.imageWidth,imagen.imageHeight);
-    cout << "imagen cargada"<<endl;
+    //cout << "imagen cargada"<<endl;
 
     bool nearly=nearlyBlack(nUmbral,&imagen);
-    cout << "imagen byn guardada"<<endl;
+    //cout << "imagen byn guardada"<<endl;
+    if(pipe(pipes)<0){
+        cout << "ERROR AL CREAR PIPE EN CARGARIMAGEN.CPP\n";
+    }
     
-    
+    cout<<"nearly black " <<inF << " " << outF<<endl;
     write(pipes[1],&nImages,sizeof(nImages));
     write(pipes[1],&umbral,sizeof(umbral));
     write(pipes[1],&nUmbral,sizeof(nUmbral));
     write(pipes[1],&tag,sizeof(tag));
+    write(pipes[1],&inF,sizeof(inF));
+    write(pipes[1],&outF,sizeof(outF));
     write(pipes[1],&imagen,sizeof(imagen));
     write(pipes[1],&nearly,sizeof(nearly));
     
@@ -191,7 +200,7 @@ int main(int argc, char **argv){
                 close(pipes[0]);
            	execl("print.o","print","-d","asd",(char*)0);
                 
-           	printf ("Si ves esto, no se pudo ejecutar el Proceso Print\n");
+           	printf ("Si ves esto, no se pudo ejecutar el Proceso Print desde nearlyBlack\n");
     }
    
   

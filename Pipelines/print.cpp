@@ -36,6 +36,27 @@ void savePixels(ImageControl *im){
 
 }
 
+void getHeader(char *filename, int offset, ImageControl *im){
+    unsigned char retorno;
+
+    //cout << "entraste a get header"<<endl;
+
+    FILE* f = fopen(filename, "rb");
+    if(f == NULL)
+        throw "Argument Exception";
+    //cout << "buscando" << endl;
+    fseek(f,0, SEEK_SET);
+    //cout << "leyendo" << endl;
+    fread(&im->header, sizeof(unsigned char), offset, f);
+    //cout << "listo retorno " << endl;
+    //cout << retorno << endl;
+    fclose(f);
+    //cout << "saliendo"<<endl;
+
+
+    //return retorno;
+}
+
 int*** getImage(string filename,ImageControl *im,int width,int height){
     string line;
     ifstream file (filename);
@@ -155,6 +176,8 @@ int  main(int argc, char **argv){
     
     int pipes[2];
     char arguments[30]; 
+    char inF[100];
+    char outF[100];
     int umbral, nImages, nUmbral,tag;
   
     
@@ -165,12 +188,13 @@ int  main(int argc, char **argv){
     read(500,&umbral,sizeof(umbral));
     read(500,&nUmbral,sizeof(nUmbral));
     read(500,&tag,sizeof(tag));
+    read(500,&inF,sizeof(inF));
+    read(500,&outF,sizeof(outF));
     read(500,&imagen,sizeof(imagen));
     read(500,&nearly,sizeof(nearly));
     
     
-   
-    cout << "imagen byn guardada"<<endl;
+    
     if (nearly==1){
                 cout << "|   imagen_" << "asd" << "  | nearlyBlack: yes   |" << endl;
                 
@@ -178,12 +202,16 @@ int  main(int argc, char **argv){
             else{
                 cout << "|   imagen_" << "asd" << "  | nearlyBlack: no    |" << endl;  
     }
+    //cout << "imagewidth " << imagen.imageWidth <<endl;
+    //cout << "imagen offset " << imagen.offset << endl;
     //ACA SE PEGAAAAA
-   /* cout << "carga imagen"<<endl;
-    imagen.byn=getImage("imageName.txt",&imagen,imagen.imageWidth,imagen.imageHeight);
-    cout << "imagen cargada"<<endl;*/
+    cout<<"getting header "<<inF<<" "<<outF<<endl;
+    getHeader(inF,imagen.offset,&imagen);
 
-    saveImage("test.bmp",1,&imagen);
+    imagen.byn=getImage("imageName.txt",&imagen,imagen.imageWidth,imagen.imageHeight);
+    cout<<"guardando imagen"<<endl;
+    saveImage(outF,1,&imagen);
+    cout<<"PROCESO TERMINADO"<<endl;
    
     
     

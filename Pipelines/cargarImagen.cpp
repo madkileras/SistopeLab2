@@ -120,35 +120,25 @@ int  main(int argc, char **argv){
 
     //int pipes[2];
     int umbral, nImages, nUmbral,tag;
-    struct prueba p;
+    char inF[100];
+    char outF[100];
     read(100,&nImages,sizeof(nImages));
     read(100,&umbral,sizeof(umbral));
     read(100,&nUmbral,sizeof(nUmbral));
     read(100,&tag,sizeof(tag));
-    //read(100,&p,sizeof(p));
-    /*
-    ofstream myfile;
-    myfile.open ("salida.txt");
-    myfile <<nImages <<"\n";
-    myfile <<umbral <<"\n";
-    myfile <<nUmbral <<"\n";
-    myfile <<tag <<"\n";
-    //myfile <<"prueba: "<<p.b<<"\n";
-    myfile.close();*/
-    
-
-
+    read(100,&inF,sizeof(inF));
+    read(100,&outF,sizeof(outF));
 
 
     ImageControl instance;
      std::string in;
         std::string out;
-        char inF[100];
+        /*char inF[100];
         char outF[100];
         in="imagen_1.bmp";
         out="imagenSalida_1.bmp";
         sprintf(inF,in.c_str());
-        sprintf(outF,out.c_str());
+        sprintf(outF,out.c_str());*/
     FILE* f = fopen(inF, "rb");
     if(f == NULL)
         throw "Argument Exception";
@@ -230,23 +220,21 @@ int  main(int argc, char **argv){
     }
     
     
-    
+    cout<<"cargarImagen " <<inF << " " << outF<<endl;
     write(pipes[1],&nImages,sizeof(nImages));
     write(pipes[1],&umbral,sizeof(umbral));
     write(pipes[1],&nUmbral,sizeof(nUmbral));
     write(pipes[1],&tag,sizeof(tag));
+    write(pipes[1],&inF,sizeof(inF));
+    write(pipes[1],&outF,sizeof(outF));
     write(pipes[1],&instance,sizeof(instance));
 
- 
-    
- 
    
     
     //cout << imagenstring<<endl;
 
-    cout << "Imagen cargada" <<endl;
-    
-    
+    //cout << "Imagen cargada" <<endl;
+
     
     
     if ( fork()==0 ){
@@ -254,7 +242,7 @@ int  main(int argc, char **argv){
                 close(pipes[0]);
            	execl("grayScale.o","grayScale","-d","asd",(char*)0);
                 
-           	printf ("Si ves esto, no se pudo ejecutar el Proceso BlackWhite\n");
+           	printf ("Si ves esto, no se pudo ejecutar el Proceso grayScale en cargarImagen\n");
     }
     
   
