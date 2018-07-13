@@ -76,7 +76,7 @@ int main(int argc, char **argv){
         cout << inF << endl;
        /* received.loadBMP(inF);
         cout << "asd" <<endl;*/
-       
+       //https://thispointer.com/c-11-multithreading-part-1-three-different-ways-to-create-threads/
         thread one(&ImageControl::escalaGrises,&received);
     }
         
