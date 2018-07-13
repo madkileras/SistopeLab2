@@ -77,6 +77,8 @@ int main(int argc, char **argv){
         received.loadBMP(inF);
         cout << "asd" <<endl;
         pthread_t threadOne, threadTwo, threadThree;
+        
+        //http://www.forosdelweb.com/f96/ejemplo-hilos-c-928472/
         /*if (pthread_create( &threadOne, NULL,received.escala, NULL))  {
             printf("Error creando el hilo.");
             abort();
