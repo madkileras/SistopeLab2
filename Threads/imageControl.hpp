@@ -48,7 +48,7 @@ class ImageControl{
 		//funcion que genera la imagen en blanco y negro
 		void blancoYnegro(int umbral);
 
-        void escalaGrises();
+        void  escalaGrises();
 		int lum(int* pixel);
 
 		//Función que guarda una imagen en un archivo BMP

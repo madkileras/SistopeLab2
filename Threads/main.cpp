@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <iostream>
-#include  <pthread.h>
+#include  <thread>
 #include "imageControl.hpp"
 #include <string>
 #include <unistd.h>
@@ -74,15 +74,10 @@ int main(int argc, char **argv){
         sprintf(outF,out.c_str());
         ImageControl received;
         cout << inF << endl;
-        received.loadBMP(inF);
-        cout << "asd" <<endl;
-        pthread_t threadOne, threadTwo, threadThree;
-        
-        //http://www.forosdelweb.com/f96/ejemplo-hilos-c-928472/
-        /*if (pthread_create( &threadOne, NULL,received.escala, NULL))  {
-            printf("Error creando el hilo.");
-            abort();
-        }*/
+       /* received.loadBMP(inF);
+        cout << "asd" <<endl;*/
+       
+        thread one(&ImageControl::escalaGrises,&received);
     }
         
         

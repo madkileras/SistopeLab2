@@ -111,7 +111,7 @@ void ImageControl::blancoYnegro(int umbral){
     return;
 }
 
-void ImageControl::escalaGrises(){
+void  ImageControl::escalaGrises(){
     escala= (int***)malloc(sizeof(int**)*imageHeight);
     for (int i=0;i< imageHeight;i++){
         escala[i]=(int**)malloc(sizeof(int*)*imageWidth);
@@ -124,7 +124,7 @@ void ImageControl::escalaGrises(){
                 escala[i][j][A]=image[i][j][A];
         }
     }
-    return;
+    
 }
 
 int ImageControl::lum(int * pixel){
