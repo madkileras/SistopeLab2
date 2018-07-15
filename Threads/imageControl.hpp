@@ -42,6 +42,11 @@ class ImageControl{
 		//funcion que carga la imagen en la variable de la clase image
 		unsigned char* loadBMP(char* filename);
 
+		//
+		void loadImage(char* filename);
+
+
+
 		//funcion que obtiene un vector que contiene el grado RGB del pixel señalado
 		int* getRGBpixel(int i,int j);
 
