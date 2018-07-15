@@ -17,6 +17,9 @@ using namespace std;
 #define READ 0
 #define WRITE 1
 
+void intento(int n){
+    cout << "esta es la hebra one " << n << endl;
+}
 
 int main(int argc, char **argv){
     pid_t my_pid=getpid(), parent_pid=getppid(),child_pids;
@@ -77,7 +80,9 @@ int main(int argc, char **argv){
        /* received.loadBMP(inF);
         cout << "asd" <<endl;*/
        //https://thispointer.com/c-11-multithreading-part-1-three-different-ways-to-create-threads/
-        thread one(&ImageControl::escalaGrises,&received);
+        thread one(&intento,1);
+        one.join();
+        i++;
     }
         
         

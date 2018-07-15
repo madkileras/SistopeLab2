@@ -112,6 +112,7 @@ void ImageControl::blancoYnegro(int umbral){
 }
 
 void  ImageControl::escalaGrises(){
+    cout<<"estas en la primera hebra uuh" << endl;
     escala= (int***)malloc(sizeof(int**)*imageHeight);
     for (int i=0;i< imageHeight;i++){
         escala[i]=(int**)malloc(sizeof(int*)*imageWidth);
