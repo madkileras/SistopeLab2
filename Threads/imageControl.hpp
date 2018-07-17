@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <cstdint>
 #include <bits/stdc++.h>
+#include <mutex>
 #include <vector>
 using namespace std;
 #define R 0
@@ -51,15 +52,15 @@ class ImageControl{
 		int* getRGBpixel(int i,int j);
 
 		//funcion que genera la imagen en blanco y negro
-		void blancoYnegro(int umbral);
+		void * blancoYnegro(int umbral);
 
-        void  escalaGrises();
+        void   *escalaGrises();
 		int lum(int* pixel);
 
 		//Función que guarda una imagen en un archivo BMP
 		//Recibe el nombre del archivo de salida y un TAG, que corresponde a si necesita guarda
 		//una imagen normal, en blanco y negro, o en escala de grises
-		int saveImage(char *filename, int tag);
+		void * saveImage(char *filename, int tag);
 
 		//Función que determina si la imagen es nearly black o no
 		//Retorna un booleano, true si es nearlyBlack o false si no
