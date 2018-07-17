@@ -85,9 +85,10 @@ unsigned char *  ImageControl::loadBMP(char* filename){
 }
 
 // funcion para leer una imagen con hebras
-void ImageControl::loadImage(char* filename){
-    
-    FILE* f = fopen(filename, "rb");
+void * ImageControl::loadImage(void * filename){
+    cout << "ENTRE csm" << endl;
+    char * filenames = (char *) filename;
+    FILE* f = fopen(filenames, "rb");
     if(f == NULL)
         throw "Argument Exception";
   

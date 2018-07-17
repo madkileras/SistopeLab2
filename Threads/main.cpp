@@ -136,10 +136,7 @@ int main(int argc, char **argv){
     char  outF[100];
 
     //CREACION DEL PRIMER PIPE
-    int pipes[2];
-    if(pipe(pipes)<0){
-        cout << "ERROR AL CREAR PIPE EN MAIN.CPP\n";
-    }
+
     //SE IMPRIMEN VALORES PARA VERIFICAR PIPE
    // cout << "c "<<c<<" u "<<u<<" n "<<n<<" b "<<b<<endl;
     //SE ESCRIBE EL PIPE
@@ -152,6 +149,7 @@ int main(int argc, char **argv){
         cout << "|    image          |    nearly_black    |"<<endl;
     //Se recorren todas la imagenes, se procesan y se guardan
     while (i<c){
+        thread t[3];
         in="imagen_"+std::to_string(i+1)+".bmp";
         out="imagenSalida_"+std::to_string(i+1)+".bmp";
         sprintf(inF,in.c_str());
@@ -161,9 +159,9 @@ int main(int argc, char **argv){
        /* received.loadBMP(inF);
         cout << "asd" <<endl;*/
        //https://thispointer.com/c-11-multithreading-part-1-three-different-ways-to-create-threads/
-        std::thread one(&ImageControl::loadImage,std::ref(received),"imagen_1.bmp");
+        t[0]=thread(&ImageControl::loadImage,received,inF);
         //thread one= loadImage(received,"imagen_1.bmp");
-        one.join();
+        t[0].join();
         i++;
     }
         

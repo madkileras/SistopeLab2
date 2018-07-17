@@ -43,7 +43,7 @@ class ImageControl{
 		unsigned char* loadBMP(char* filename);
 
 		//
-		void loadImage(char* filename);
+		void * loadImage(void* filename);
 
 
 
