@@ -5,6 +5,11 @@
 #define B 2
 #define A 3
 
+extern std::mutex m;
+extern std::condition_variable cv;
+extern bool ready;
+extern bool processed;
+
 
 //LEE PIXEL POR PIXEL Y LO GUARDA EN UNA MATRIZ ENTERA RGB
 //RETORNA UNA MATRIZ
@@ -90,6 +95,20 @@ int* ImageControl::getRGBpixel(int i,int j){
 
 void *ImageControl::blancoYnegro(int umbral){
     cout << "Estas en la hebra 2"<<endl;
+    std::unique_lock<std::mutex> lk(m);
+    if(ready){
+        cout<<"Comenzando la hebra 2 con ready=true"<<endl;
+    }
+    else{
+        cout <<"Esperando la hebra 0 con ready=false"<<endl;
+    }
+
+
+    cv.wait(lk, []{return ready;});
+
+    cout<<"Comenzó!!"<<endl;
+
+
     byn= (int***)malloc(sizeof(int**)*imageHeight);
     for (int i=0;i< imageHeight;i++){
         byn[i]=(int**)malloc(sizeof(int*)*imageWidth);
@@ -109,6 +128,9 @@ void *ImageControl::blancoYnegro(int umbral){
             }
         }
     }
+
+    lk.unlock();
+    cv.notify_one();
     
 }
 
@@ -240,6 +262,10 @@ int ImageControl::freeImages(){
 // funcion para leer una imagen con hebras
 void * ImageControl::loadImage(void * filename){
     cout << "estas en la hebra 0" << endl;
+    std::lock_guard<std::mutex> lk(m);
+    ready = true;
+    cout << "ready cambiado a true en hebra 0 loadImage" << endl;
+    cv.notify_one();
     char * filenames = (char *) filename;
     FILE* f = fopen(filenames, "rb");
     if(f == NULL)

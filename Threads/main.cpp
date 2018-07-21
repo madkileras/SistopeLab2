@@ -9,6 +9,8 @@
 #include <iostream>
  #include <sys/wait.h>
  #include <sys/types.h>
+#include <mutex>
+#include <condition_variable>
 
 using namespace std;
 #define R 0
@@ -18,10 +20,10 @@ using namespace std;
 #define READ 0
 #define WRITE 1
 
-
-
-
-
+std::mutex m;
+std::condition_variable cv;
+bool ready = false;
+bool processed = false;
 
 int main(int argc, char **argv){
     pid_t my_pid=getpid(), parent_pid=getppid(),child_pids;
