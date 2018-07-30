@@ -112,15 +112,33 @@ void *ImageControl::blancoYnegro(int umbral){
     
 }
 
-void * ImageControl::escalaGrises(){
-    cout<<"estas en la hebra 1" << endl;
-    escala= (int***)malloc(sizeof(int**)*imageHeight);
+void * ImageControl::escalaGrises(int numeroHebra,int cantidadHebras){
+     cout<<"Hebra "<< numeroHebra << " ejecutándose" << endl;
+    int desde,hasta;
+    
+    desde=(imageWidth/cantidadHebras)*numeroHebra;
+    
    
-    for (int i=0;i< imageHeight;i++){
+    if(numeroHebra!=cantidadHebras-1){
+        hasta=(imageWidth/cantidadHebras)*(numeroHebra+1);
+    }    
+    else{
+        hasta=imageWidth;
+    }
+    cout << "---------------------"<<endl;
+    cout << desde << " HEBRA " << numeroHebra  << endl;
+     cout << hasta << " HEBRA " << numeroHebra  << endl;
+       cout << "---------------------"<< endl;
+    if (escala!=NULL){
+        escala= (int***)malloc(sizeof(int**)*imageHeight);
+    }
        
-        escala[i]=(int**)malloc(sizeof(int*)*imageWidth);
-        for(int j=0;j<imageWidth;j++){
-                escala[i][j]=(int*)malloc(sizeof(int)*4);
+    for (int i=0;i< imageHeight;i++){
+        if(escala[i]!=NULL) escala[i]=(int**)malloc(sizeof(int*)*imageWidth);
+        
+        for(int j=desde;j<hasta;j++){
+                if(escala[i][j]!=NULL) escala[i][j]=(int*)malloc(sizeof(int)*4);
+                
                 //cout << lum(getRGBpixel(i,j))<<endl;
                 escala[i][j][B]=lum(getRGBpixel(i,j));
                 escala[i][j][R]=lum(getRGBpixel(i,j));
@@ -128,8 +146,8 @@ void * ImageControl::escalaGrises(){
                 escala[i][j][A]=image[i][j][A];
         }
     }
-    
 }
+
 
 int  ImageControl::lum(int * pixel){
     return pixel[R]*0.3+pixel[G]*0.59+pixel[B]*0.11;
@@ -239,7 +257,7 @@ int ImageControl::freeImages(){
 
 // funcion para leer una imagen con hebras
 void * ImageControl::loadImage(void * filename){
-    cout << "estas en la hebra 0" << endl;
+   
     char * filenames = (char *) filename;
     FILE* f = fopen(filenames, "rb");
     if(f == NULL)
