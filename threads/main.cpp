@@ -83,13 +83,19 @@ int main(int argc, char **argv){
        
        //https://thispointer.com/c-11-multithreading-part-1-three-different-ways-to-create-threads/
         t[0]=thread(&ImageControl::loadImage,received,inF);
-        t[1]=thread(&ImageControl::escalaGrises,received,0,2);
+        
+       
+        
+        t[1]=thread(&ImageControl::escalaGrises,received,0,1);
         t[2]=thread(&ImageControl::escalaGrises,received,1,2);
+        //t[2]=thread(&ImageControl::escalaGrises,received,1,2);
         //t[2]=thread(&ImageControl::blancoYnegro,received,n);
         t[0].join();
-        //t[1].join();
+        
         t[1].join();
-          cout << received->escala[0][0][0]<<endl;;
+         t[2].join();
+       // t[1].join();
+         cout << received->getRGBpixel(0,0)[1]<<endl;
         i++;
     }
         

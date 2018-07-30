@@ -135,11 +135,15 @@ void *ImageControl::blancoYnegro(int umbral){
 }
 
 void * ImageControl::escalaGrises(int numeroHebra,int cantidadHebras){
+     std::unique_lock<std::mutex> lk(m);
+        cv.wait(lk, []{return ready;});
      cout<<"Hebra "<< numeroHebra << " ejecutándose" << endl;
     int desde,hasta;
     
-    desde=(imageWidth/cantidadHebras)*numeroHebra;
-    
+    if(numeroHebra==0) desde=(imageWidth/cantidadHebras)*numeroHebra;
+    else { 
+        desde=(imageWidth/cantidadHebras)*numeroHebra+1;
+    }    
    
     if(numeroHebra!=cantidadHebras-1){
         hasta=(imageWidth/cantidadHebras)*(numeroHebra+1);
@@ -151,23 +155,21 @@ void * ImageControl::escalaGrises(int numeroHebra,int cantidadHebras){
     cout << desde << " HEBRA " << numeroHebra  << endl;
      cout << hasta << " HEBRA " << numeroHebra  << endl;
        cout << "---------------------"<< endl;
-    if (escala!=NULL){
-        escala= (int***)malloc(sizeof(int**)*imageHeight);
-    }
+    
        
     for (int i=0;i< imageHeight;i++){
-        if(escala[i]!=NULL) escala[i]=(int**)malloc(sizeof(int*)*imageWidth);
         
         for(int j=desde;j<hasta;j++){
-                if(escala[i][j]!=NULL) escala[i][j]=(int*)malloc(sizeof(int)*4);
                 
                 //cout << lum(getRGBpixel(i,j))<<endl;
-                escala[i][j][B]=lum(getRGBpixel(i,j));
-                escala[i][j][R]=lum(getRGBpixel(i,j));
-                escala[i][j][G]=lum(getRGBpixel(i,j));
-                escala[i][j][A]=image[i][j][A];
+                image[i][j][B]=lum(getRGBpixel(i,j));
+                image[i][j][R]=lum(getRGBpixel(i,j));
+                image[i][j][G]=lum(getRGBpixel(i,j));
+                image[i][j][A]=image[i][j][A];
         }
     }
+    lk.unlock();
+    cv.notify_one();
 }
 
 
@@ -280,10 +282,10 @@ int ImageControl::freeImages(){
 // funcion para leer una imagen con hebras
 void * ImageControl::loadImage(void * filename){
 
-    cout << "estas en la hebra 0" << endl;
+    cout << "Estas en la hebra LoadImage" << endl;
     std::lock_guard<std::mutex> lk(m);
     ready = true;
-    cout << "ready cambiado a true en hebra 0 loadImage" << endl;
+    cout << "ready cambiado a true en hebra loadImage" << endl;
     cv.notify_one();
 
     char * filenames = (char *) filename;
