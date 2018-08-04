@@ -9,6 +9,7 @@ extern std::mutex m;
 extern std::condition_variable cv;
 extern bool ready;
 extern bool processed;
+extern pthread_barrier_t mybarrier;
 
 
 //LEE PIXEL POR PIXEL Y LO GUARDA EN UNA MATRIZ ENTERA RGB
@@ -135,9 +136,10 @@ void *ImageControl::blancoYnegro(int umbral){
 }
 
 void * ImageControl::escalaGrises(int numeroHebra,int cantidadHebras){
-     std::unique_lock<std::mutex> lk(m);
-        cv.wait(lk, []{return ready;});
-     cout<<"Hebra "<< numeroHebra << " ejecutándose" << endl;
+    cout << "Entrando en escala de grises" << endl;
+    std::unique_lock<std::mutex> lk(m);
+    cv.wait(lk, []{return ready;});
+    cout<<"Hebra "<< numeroHebra << " ejecutándose" << endl;
     int desde,hasta;
     
     if(numeroHebra==0) desde=(imageWidth/cantidadHebras)*numeroHebra;
@@ -170,6 +172,9 @@ void * ImageControl::escalaGrises(int numeroHebra,int cantidadHebras){
     }
     lk.unlock();
     cv.notify_one();
+    cout<< "Aumentando 1 en Barrier en escala de grises" << endl;
+    pthread_barrier_wait(&mybarrier);
+    cout<< "Liberada la barrera, sigue escala de grises"<<endl;
 }
 
 
@@ -284,9 +289,7 @@ void * ImageControl::loadImage(void * filename){
 
     cout << "Estas en la hebra LoadImage" << endl;
     std::lock_guard<std::mutex> lk(m);
-    ready = true;
-    cout << "ready cambiado a true en hebra loadImage" << endl;
-    cv.notify_one();
+    
 
     char * filenames = (char *) filename;
     FILE* f = fopen(filenames, "rb");
@@ -359,7 +362,11 @@ void * ImageControl::loadImage(void * filename){
 
     }
     //out <<"finciclo";
+    ready = true;
+    cout << "ready cambiado a true en hebra loadImage" << endl;
+    cv.notify_one();
     fclose(f);
+    
 
 }
 
