@@ -25,6 +25,9 @@ std::condition_variable cv;
 bool ready = false;
 bool processed = false;
 
+int countWhite;
+int countBlack;
+
 pthread_barrier_t mybarrier;
 int nhebras;
 
@@ -76,41 +79,65 @@ int main(int argc, char **argv){
     // -----> HASTA ACA EL PROCESO MAIN
     int lock=0;
        cout << endl << "Resultados:" << endl;
-        cout << "|    image          |    nearly_black    |"<<endl;
+        cout << "|    imageName     |    nearly_black     |"<<endl;
     //Se recorren todas la imagenes, se procesan y se guardan
 
-    nhebras=2;
-    pthread_barrier_init(&mybarrier, NULL, nhebras);
+    nhebras=h-1;
+    pthread_barrier_init(&mybarrier, NULL,nhebras);
 
-
+    thread t[h];
     while (i<c){
-
-        thread t[h];
-
+            
+        
+        countWhite=0;
+        countBlack=0;
 
         in="imagen_"+std::to_string(i+1)+".bmp";
         out="imagenSalida_"+std::to_string(i+1)+".bmp";
         sprintf(inF,in.c_str());
         sprintf(outF,out.c_str());
         ImageControl *received=new ImageControl();
-        cout << inF << endl;
+      
         //received->loadImage(inF);
        
        //https://thispointer.com/c-11-multithreading-part-1-three-different-ways-to-create-threads/
         t[0]=thread(&ImageControl::loadImage,received,inF);
+        for(int p=1;p<h;p++){
         
-        t[1]=thread(&ImageControl::blancoYnegro,received,n,0,1);
-        t[2]=thread(&ImageControl::blancoYnegro,received,n,1,2);
-        //t[2]=thread(&ImageControl::escalaGrises,received,1,2);
-        //t[2]=thread(&ImageControl::blancoYnegro,received,n);
-       
+            t[p]=thread(&ImageControl::escalaGrises,received,p-1,h-1);
+        } 
+        for(int p=1;p<h;p++){
+             t[p].join();
+         }
         
-         t[0].join();
-         t[1].join();
-         t[2].join();
-       // t[1].join();
-         cout << received->getRGBpixel(250,250)[1]<<endl;
-        i++;
+            
+        for(int p=1;p<h;p++){
+   
+            t[p]=thread(&ImageControl::blancoYnegro,received,n,p-1,h-1);
+         } 
+        
+        for(int p=0;p<h;p++){
+             t[p].join();
+         }
+           
+        for(int p=1;p<h;p++){
+            t[p]=thread(&ImageControl::nearlyBlack,received,u,p-1,h-1);
+        }
+        for(int p=1;p<h;p++){
+             t[p].join();
+         }
+        
+        received->saveImage(outF,0);  
+        
+        if(countBlack>countWhite){
+             cout << "|   imagen_" << i << "       |   nearlyBlack: yes  |" << endl;
+        }else{
+             cout << "|   imagen_" << i << "       |   nearlyBlack: no   |" << endl;
+        }
+        
+        
+         
+         i++;
     }
         
         

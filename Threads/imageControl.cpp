@@ -6,14 +6,13 @@
 #define A 3
 
 extern std::mutex m;
-extern std::mutex nearly;
 extern std::condition_variable cv;
 extern bool ready;
 extern bool processed;
 
 extern bool contando;
-int countBlack=0;
-int countWhite=0;
+extern int countBlack;
+extern int countWhite;
 
 extern pthread_barrier_t mybarrier;
 
@@ -26,16 +25,14 @@ int* ImageControl::getRGBpixel(int i,int j){
 void *ImageControl::blancoYnegro(int umbral,int numeroHebra,int cantidadHebras){
 
     std::unique_lock<std::mutex> lk(m);
-       cout<<"Hebra "<< numeroHebra << " ejecutándose" << endl;
-
-
+   
     cv.wait(lk, []{return ready;});
 
     int desde,hasta;
     
     if(numeroHebra==0) desde=(imageWidth/cantidadHebras)*numeroHebra;
     else { 
-        desde=(imageWidth/cantidadHebras)*numeroHebra+1;
+        desde=(imageWidth/cantidadHebras)*numeroHebra;
     }    
    
     if(numeroHebra!=cantidadHebras-1){
@@ -44,11 +41,6 @@ void *ImageControl::blancoYnegro(int umbral,int numeroHebra,int cantidadHebras){
     else{
         hasta=imageWidth;
     }
-  cout << "---------------------"<<endl;
-    cout << desde << " HEBRA N:" << numeroHebra  << endl;
-     cout << hasta << " HEBRA N:" << numeroHebra  << endl;
-       cout << "---------------------"<< endl;
-
     for (int i=0;i< imageHeight;i++){
         
         for(int j=desde;j<hasta;j++){
@@ -78,7 +70,6 @@ void * ImageControl::escalaGrises(int numeroHebra,int cantidadHebras){
         cv.wait(lk, []{return ready;});
 
     int desde,hasta;
-    
     if(numeroHebra==0) desde=(imageWidth/cantidadHebras)*numeroHebra;
     else { 
         desde=(imageWidth/cantidadHebras)*numeroHebra+1;
@@ -90,11 +81,6 @@ void * ImageControl::escalaGrises(int numeroHebra,int cantidadHebras){
     else{
         hasta=imageWidth;
     }
-    cout << "---------------------"<<endl;
-    cout << desde << " HEBRA N:" << numeroHebra  << endl;
-     cout << hasta << " HEBRA N:" << numeroHebra  << endl;
-       cout << "---------------------"<< endl;
-    
        
     for (int i=0;i< imageHeight;i++){
         
@@ -109,9 +95,8 @@ void * ImageControl::escalaGrises(int numeroHebra,int cantidadHebras){
     }
     lk.unlock();
     cv.notify_one();
-    cout<< "Aumentando 1 en Barrier en escala de grises" << endl;
     pthread_barrier_wait(&mybarrier);
-    cout<< "Liberada la barrera, sigue escala de grises"<<endl;
+ 
 }
 
 
@@ -119,7 +104,7 @@ int  ImageControl::lum(int * pixel){
     return pixel[R]*0.3+pixel[G]*0.59+pixel[B]*0.11;
 }
 
-void * ImageControl::saveImage(char *filename, int tag){
+void  ImageControl::saveImage(char *filename, int tag){
    
     FILE *prueba;
     prueba=fopen(filename,"wb");
@@ -153,17 +138,34 @@ void * ImageControl::saveImage(char *filename, int tag){
         }
     }
     fclose(prueba);
-    return 0;
+    
 }
 
-void * ImageControl::nearlyBlack(int umbral){
+void * ImageControl::nearlyBlack(int umbral,int numeroHebra,int cantidadHebras){
     //cout << "Entraste a nearlyBlack" << endl;
-    std::lock_guard<std::mutex>lk(m);
+    std::unique_lock<std::mutex> lk(m);
+     cv.wait(lk, []{return ready;});
+     
+    int desde,hasta;
+    if(numeroHebra==0) desde=(imageWidth/cantidadHebras)*numeroHebra;
+    else { 
+        desde=(imageWidth/cantidadHebras)*numeroHebra+1;
+    }    
+   
+    if(numeroHebra!=cantidadHebras-1){
+        hasta=(imageWidth/cantidadHebras)*(numeroHebra+1);
+    }    
+    else{
+        hasta=imageWidth;
+    }
     
-    for(int i=0; i<imageHeight; i++)
-    {
-        for(int j = 0; j < imageWidth; j++)
+
+     
+    for (int i=0;i< imageHeight;i++){
+     
+        for(int j=desde;j<hasta;j++)
         {
+           
             if(lum(getRGBpixel(i,j))>umbral){
                 countWhite++;
             }
@@ -172,16 +174,9 @@ void * ImageControl::nearlyBlack(int umbral){
             }
         }
     }
-    cout<<"Cantidad de Negros: "<<countBlack<<endl;
-    cout<<"Cantidad de Blancos: "<<countWhite<<endl;
-
-    if(countBlack>countWhite){
-        return true;
-    }
-    else{
-        return false;
-    }
-    return true;
+  
+    lk.unlock();
+    cv.notify_one();
 
 }
 int ImageControl::freeImages(){
@@ -217,14 +212,13 @@ int ImageControl::freeImages(){
      free(&image);
         free(&byn);
         free(&escala);
-       contando=true;
+  
 }
 
 
 // funcion para leer una imagen con hebras
 void * ImageControl::loadImage(void * filename){
 
-    cout << "Estas en la hebra LoadImage" << endl;
     std::lock_guard<std::mutex> lk(m);
     
 
@@ -300,11 +294,11 @@ void * ImageControl::loadImage(void * filename){
     }
     //out <<"finciclo";
     ready = true;
-    cout << "ready cambiado a true en hebra loadImage" << endl;
+  
     cv.notify_one();
     fclose(f);
 
-    ready = true;
+    ready = true;   
 }
 
 
