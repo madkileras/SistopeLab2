@@ -25,8 +25,12 @@ std::condition_variable cv;
 bool ready = false;
 bool processed = false;
 
+pthread_barrier_t mybarrier;
+int nhebras;
+
 int main(int argc, char **argv){
     pid_t my_pid=getpid(), parent_pid=getppid(),child_pids;
+
     
 
     //DECLARACION DE VARIABLES PARA ARGUMENTOS RECIBIDOS
@@ -74,8 +78,16 @@ int main(int argc, char **argv){
        cout << endl << "Resultados:" << endl;
         cout << "|    image          |    nearly_black    |"<<endl;
     //Se recorren todas la imagenes, se procesan y se guardan
+
+    nhebras=2;
+    pthread_barrier_init(&mybarrier, NULL, nhebras);
+
+
     while (i<c){
+
         thread t[h];
+
+
         in="imagen_"+std::to_string(i+1)+".bmp";
         out="imagenSalida_"+std::to_string(i+1)+".bmp";
         sprintf(inF,in.c_str());
