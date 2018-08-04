@@ -31,9 +31,9 @@ int main(int argc, char **argv){
 
     //DECLARACION DE VARIABLES PARA ARGUMENTOS RECIBIDOS
     //c:cantidad de imágenes ; u: umbral; n: umbral para clasificacion; b: bandera(?)
-    int c,u,n,b=0;
+    int c,u,n,h,b=0;
     int opt;
-    while((opt=getopt(argc, argv,"c:u:n:b"))!=-1){
+    while((opt=getopt(argc, argv,"c:u:n:h:b"))!=-1){
         //SE ASIGNAN LOS VALORES DE LA CONSOLA A LAS VARIABLES DEFINIDAS
         switch(opt){
             case 'c':
@@ -44,6 +44,9 @@ int main(int argc, char **argv){
                 break;
             case 'n':
                 n=atoi(optarg);
+                break;
+             case 'h':
+                h=atoi(optarg);
                 break;
             case 'b':
                 b++;
@@ -72,7 +75,7 @@ int main(int argc, char **argv){
         cout << "|    image          |    nearly_black    |"<<endl;
     //Se recorren todas la imagenes, se procesan y se guardan
     while (i<c){
-        thread t[3];
+        thread t[h];
         in="imagen_"+std::to_string(i+1)+".bmp";
         out="imagenSalida_"+std::to_string(i+1)+".bmp";
         sprintf(inF,in.c_str());
@@ -84,18 +87,17 @@ int main(int argc, char **argv){
        //https://thispointer.com/c-11-multithreading-part-1-three-different-ways-to-create-threads/
         t[0]=thread(&ImageControl::loadImage,received,inF);
         
-       
-        
-        t[1]=thread(&ImageControl::escalaGrises,received,0,1);
-        t[2]=thread(&ImageControl::escalaGrises,received,1,2);
+        t[1]=thread(&ImageControl::blancoYnegro,received,n,0,1);
+        t[2]=thread(&ImageControl::blancoYnegro,received,n,1,2);
         //t[2]=thread(&ImageControl::escalaGrises,received,1,2);
         //t[2]=thread(&ImageControl::blancoYnegro,received,n);
-        t[0].join();
+       
         
-        t[1].join();
+         t[0].join();
+         t[1].join();
          t[2].join();
        // t[1].join();
-         cout << received->getRGBpixel(0,0)[1]<<endl;
+         cout << received->getRGBpixel(250,250)[1]<<endl;
         i++;
     }
         

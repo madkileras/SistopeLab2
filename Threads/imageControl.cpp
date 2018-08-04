@@ -6,125 +6,59 @@
 #define A 3
 
 extern std::mutex m;
+extern std::mutex nearly;
 extern std::condition_variable cv;
 extern bool ready;
 extern bool processed;
+extern bool contando;
+int countBlack=0;
+int countWhite=0;
 
-
-//LEE PIXEL POR PIXEL Y LO GUARDA EN UNA MATRIZ ENTERA RGB
-//RETORNA UNA MATRIZ
-unsigned char *  ImageControl::loadBMP(char* filename){
-
-    FILE* f = fopen(filename, "rb");
-    if(f == NULL)
-        throw "Argument Exception";
-  
-    fseek(f,0, SEEK_SET);
-    fread(type, sizeof(char), 2, f);
-    strcpy(type,"BM");
-    //cout << "type " << type << endl;
-    fread(&tam, sizeof(int), 1, f);
-    //cout << "tam " << tam << endl;
-    //reservado=*(int*)&info[6];
-    fread(&reservado, sizeof(int), 1, f);
-    //cout << "reservado " << reservado << endl;
-    fread(&offset, sizeof(int), 1, f);
-    //cout << "offset " << offset << endl;
-    //fread(tam, sizeof(int), 1, f);
-    //reservado=aux2;
-    fread(&tamMet, sizeof(int), 1, f);
-    //cout << "imageWidth " << imageWidth << endl;
-    fread(&imageHeight,sizeof(int),1, f);
-    fread(&imageWidth,sizeof(int),1, f);
-    //cout << "imageHeight " << imageHeight << endl;
-    fread(&numeroP, sizeof(short), 1, f);
-    fread(&prof, sizeof(short), 1, f);
-    fread(&compresion, sizeof(int), 1, f);
-    fread(&estructura, sizeof(int), 1, f);
-    fread(&pxmh, sizeof(int), 1, f);
-    fread(&pxmv, sizeof(int), 1, f);
-    fread(&coloresUsados, sizeof(int), 1, f);
-    fread(&coloresImportantes, sizeof(int), 1, f);
-    fseek(f,0, SEEK_SET);
-    //offset=121;
-    fread(&header, sizeof(unsigned char), offset, f);
-
-    //cout << type << endl;
-
-
-    image = (int***)malloc(sizeof(int**)*imageHeight);
-    int row_padded = (imageWidth*4 + 4) & (~4);
-    //cout << "row row_padded " << row_padded << endl;
-    unsigned char* data = new unsigned char[row_padded];
-   
-    int j=0;
-    //cout << (imageWidth-1)*3;
-    for(int i = 0; i < imageHeight; i++)
-    {
-        //cout << "tengo un i: "<<i<<endl;
-       //cout << "Se cayo aquí"<<endl;
-        image[i]=(int**)malloc(sizeof(int*)*imageWidth);
-        fread(data, sizeof(unsigned char), row_padded, f);
-
-        for(j = 0; j < imageWidth*4; j += 4)
-        {
-            //cout << "Se cayo acá"<<endl;
-            //cout << j << endl;;
-          // Convert (B, G, R) to (R, G, B)
-
-            image[i][j/4]=(int*)malloc(sizeof(int)*4);
-            //cout << "aqui: " << image[i][j/3] << " i: " << i <<" j: " << j << endl;
-            image[i][j/4][B]=(int)data[j];
-            //cout << "image2 " << image[i][j/3][R] << endl;
-            image[i][j/4][G]=(int)data[j+1];
-            image[i][j/4][R]=(int)data[j+2];
-            image[i][j/4][A]=(int)data[j+3];
-            //cout << "R: "<< (int)data[j] << " G: " << (int)data[j+1]<< " B: " << (int)data[j+2]<< endl;
-        }
-        //cout<<"sali del ciclo "<<j<<" con i "<<i<<endl;
-
-    }
-    //out <<"finciclo";
-    fclose(f);
-    return data;
-}
 
 int* ImageControl::getRGBpixel(int i,int j){
     return image[i][j];
 }
 
-void *ImageControl::blancoYnegro(int umbral){
-    cout << "Estas en la hebra 2"<<endl;
+void *ImageControl::blancoYnegro(int umbral,int numeroHebra,int cantidadHebras){
+
     std::unique_lock<std::mutex> lk(m);
-    if(ready){
-        cout<<"Comenzando la hebra 2 con ready=true"<<endl;
-    }
-    else{
-        cout <<"Esperando la hebra 0 con ready=false"<<endl;
-    }
+       cout<<"Hebra "<< numeroHebra << " ejecutándose" << endl;
 
 
     cv.wait(lk, []{return ready;});
 
-    cout<<"Comenzó!!"<<endl;
+    int desde,hasta;
+    
+    if(numeroHebra==0) desde=(imageWidth/cantidadHebras)*numeroHebra;
+    else { 
+        desde=(imageWidth/cantidadHebras)*numeroHebra+1;
+    }    
+   
+    if(numeroHebra!=cantidadHebras-1){
+        hasta=(imageWidth/cantidadHebras)*(numeroHebra+1);
+    }    
+    else{
+        hasta=imageWidth;
+    }
+  cout << "---------------------"<<endl;
+    cout << desde << " HEBRA N:" << numeroHebra  << endl;
+     cout << hasta << " HEBRA N:" << numeroHebra  << endl;
+       cout << "---------------------"<< endl;
 
-
-    byn= (int***)malloc(sizeof(int**)*imageHeight);
     for (int i=0;i< imageHeight;i++){
-        byn[i]=(int**)malloc(sizeof(int*)*imageWidth);
-        for(int j=0;j<imageWidth;j++){
-            byn[i][j]=(int*)malloc(sizeof(int)*4);
+        
+        for(int j=desde;j<hasta;j++){
             if(lum(getRGBpixel(i,j))>umbral){
-                byn[i][j][B]=255;
-                byn[i][j][R]=255;
-                byn[i][j][G]=255;
-                byn[i][j][A]=255;
+                image[i][j][B]=255;
+                image[i][j][R]=255;
+                image[i][j][G]=255;
+                image[i][j][A]=255;
             }
             else{
-                byn[i][j][B]=0;
-                byn[i][j][R]=0;
-                byn[i][j][G]=0;
-                byn[i][j][A]=255;
+                image[i][j][B]=0;
+                image[i][j][R]=0;
+                image[i][j][G]=0;
+                image[i][j][A]=255;
             }
         }
     }
@@ -137,7 +71,7 @@ void *ImageControl::blancoYnegro(int umbral){
 void * ImageControl::escalaGrises(int numeroHebra,int cantidadHebras){
      std::unique_lock<std::mutex> lk(m);
         cv.wait(lk, []{return ready;});
-     cout<<"Hebra "<< numeroHebra << " ejecutándose" << endl;
+  N:
     int desde,hasta;
     
     if(numeroHebra==0) desde=(imageWidth/cantidadHebras)*numeroHebra;
@@ -152,8 +86,8 @@ void * ImageControl::escalaGrises(int numeroHebra,int cantidadHebras){
         hasta=imageWidth;
     }
     cout << "---------------------"<<endl;
-    cout << desde << " HEBRA " << numeroHebra  << endl;
-     cout << hasta << " HEBRA " << numeroHebra  << endl;
+    cout << desde << " HEBRA N:" << numeroHebra  << endl;
+     cout << hasta << " HEBRA N:" << numeroHebra  << endl;
        cout << "---------------------"<< endl;
     
        
@@ -214,10 +148,10 @@ void * ImageControl::saveImage(char *filename, int tag){
     return 0;
 }
 
-bool ImageControl::nearlyBlack(int umbral){
+void * ImageControl::nearlyBlack(int umbral){
     //cout << "Entraste a nearlyBlack" << endl;
-    int countBlack=0;
-    int countWhite=0;
+    std::lock_guard<std::mutex>lk(m);
+    
     for(int i=0; i<imageHeight; i++)
     {
         for(int j = 0; j < imageWidth; j++)
@@ -231,7 +165,7 @@ bool ImageControl::nearlyBlack(int umbral){
         }
     }
     cout<<"Cantidad de Negros: "<<countBlack<<endl;
-            cout<<"Cantidad de Blancos: "<<countWhite<<endl;
+    cout<<"Cantidad de Blancos: "<<countWhite<<endl;
 
     if(countBlack>countWhite){
         return true;
@@ -275,7 +209,7 @@ int ImageControl::freeImages(){
      free(&image);
         free(&byn);
         free(&escala);
-    return 0;
+       contando=true;
 }
 
 
@@ -284,7 +218,7 @@ void * ImageControl::loadImage(void * filename){
 
     cout << "Estas en la hebra LoadImage" << endl;
     std::lock_guard<std::mutex> lk(m);
-    ready = true;
+    
     cout << "ready cambiado a true en hebra loadImage" << endl;
     cv.notify_one();
 
@@ -360,7 +294,7 @@ void * ImageControl::loadImage(void * filename){
     }
     //out <<"finciclo";
     fclose(f);
-
+    ready = true;
 }
 
 

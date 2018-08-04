@@ -40,8 +40,7 @@ class ImageControl{
 
 
 
-		//funcion que carga la imagen en la variable de la clase image
-		unsigned char* loadBMP(char* filename);
+		
 
 		//
 		void * loadImage(void* filename);
@@ -52,7 +51,7 @@ class ImageControl{
 		int* getRGBpixel(int i,int j);
 
 		//funcion que genera la imagen en blanco y negro
-		void * blancoYnegro(int umbral);
+		void * blancoYnegro(int umbral,int numeroHebra,int cantidadHebras);
 
                 void   *escalaGrises(int numeroHebra,int cantidadHebras);
 		int lum(int* pixel);
@@ -64,7 +63,7 @@ class ImageControl{
 
 		//Función que determina si la imagen es nearly black o no
 		//Retorna un booleano, true si es nearlyBlack o false si no
-		bool nearlyBlack(int umbral);
+		void * nearlyBlack(int umbral);
 
 		//Función que libera las imágenes del objeto
 		int freeImages();
