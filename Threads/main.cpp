@@ -83,9 +83,8 @@ int main(int argc, char **argv){
     //Se recorren todas la imagenes, se procesan y se guardan
 
     nhebras=h-1;
-    pthread_barrier_init(&mybarrier, NULL,nhebras);
+    //pthread_barrier_init(&mybarrier, NULL,nhebras);
 
-    thread t[h];
     while (i<c){
             
         
@@ -97,36 +96,42 @@ int main(int argc, char **argv){
         sprintf(inF,in.c_str());
         sprintf(outF,out.c_str());
         ImageControl *received=new ImageControl();
-      
         //received->loadImage(inF);
-       
-       //https://thispointer.com/c-11-multithreading-part-1-three-different-ways-to-create-threads/
+        thread t[h];
+        pthread_barrier_init(&mybarrier, NULL,nhebras);
+        //https://thispointer.com/c-11-multithreading-part-1-three-different-ways-to-create-threads/
+        //cout << "t0" << endl;
         t[0]=thread(&ImageControl::loadImage,received,inF);
+        //cout << "hebras " << h << " nhebras " <<nhebras<<endl;
+        //cout << "t1 escala grises" << endl;
         for(int p=1;p<h;p++){
-        
+            //cout << "p " << p << " h " << h << endl; 
+            //cout << "creando threads para escala de grises" << endl;
             t[p]=thread(&ImageControl::escalaGrises,received,p-1,h-1);
+            //cout << "LISTO CREADA threads para escala de grises" << endl;
         } 
+        //cout << "t1 join" << endl;
         for(int p=1;p<h;p++){
-             t[p].join();
-         }
-        
-            
+             t[p].detach();
+        }            
+        //cout << "t2 blanco y negro" << endl;
         for(int p=1;p<h;p++){
    
             t[p]=thread(&ImageControl::blancoYnegro,received,n,p-1,h-1);
-         } 
-        
+        }
+        //cout << "t2 join" << endl;        
         for(int p=0;p<h;p++){
-             t[p].join();
-         }
-           
+             t[p].detach();
+        }
+        //cout << "t3 nearlyblack" << endl;           
         for(int p=1;p<h;p++){
             t[p]=thread(&ImageControl::nearlyBlack,received,u,p-1,h-1);
         }
+        //cout << "t3 join" << endl;
         for(int p=1;p<h;p++){
-             t[p].join();
-         }
-        
+             t[p].detach();
+        }
+        //cout << "save image" << endl;
         received->saveImage(outF,0);  
         
         if(countBlack>countWhite){
@@ -135,10 +140,16 @@ int main(int argc, char **argv){
              cout << "|   imagen_" << i << "       |   nearlyBlack: no   |" << endl;
         }
         
-        
-         
          i++;
+         pthread_barrier_destroy(&mybarrier);
+         //pthread_exit(NULL);
+         //cout << c << endl;
+        ready = false;
+        processed = false;
+        //delete [] t;
+         
     }
+    
         
         
         

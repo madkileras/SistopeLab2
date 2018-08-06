@@ -65,7 +65,7 @@ void *ImageControl::blancoYnegro(int umbral,int numeroHebra,int cantidadHebras){
 }
 
 void * ImageControl::escalaGrises(int numeroHebra,int cantidadHebras){
-
+    cout << "holi" << endl;
      std::unique_lock<std::mutex> lk(m);
         cv.wait(lk, []{return ready;});
 
