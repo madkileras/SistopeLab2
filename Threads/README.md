@@ -6,7 +6,10 @@ Lectura y modificacion de imágenes en formato BMP
 
 Compilar con:
 
-g++ -std=c++11 main.cpp imageControl.cpp -o out.o -pthread
+//g++ -std=c++11 main.cpp imageControl.cpp -o out.o -pthread
+Lab4:
+u++ -std=c++11 main2.cpp buffer.cpp imageControl.cpp -o out.o
+
 
 Prueba de ejecución:
 
