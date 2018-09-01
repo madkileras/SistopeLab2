@@ -5,225 +5,12 @@
 #define B 2
 #define A 3
 
-extern std::mutex m;
-extern std::condition_variable cv;
-extern bool ready;
-extern bool processed;
 
-extern bool contando;
-extern int countBlack;
-extern int countWhite;
+//LEE PIXEL POR PIXEL Y LO GUARDA EN UNA MATRIZ ENTERA RGB
+//RETORNA UNA MATRIZ
+unsigned char *  ImageControl::loadBMP(char* filename){
 
-extern pthread_barrier_t mybarrier;
-
-
-
-int* ImageControl::getRGBpixel(int i,int j){
-    return image[i][j];
-}
-
-void *ImageControl::blancoYnegro(int umbral,int numeroHebra,int cantidadHebras){
-
-    std::unique_lock<std::mutex> lk(m);
-   
-    cv.wait(lk, []{return ready;});
-
-    int desde,hasta;
-    
-    if(numeroHebra==0) desde=(imageWidth/cantidadHebras)*numeroHebra;
-    else { 
-        desde=(imageWidth/cantidadHebras)*numeroHebra;
-    }    
-   
-    if(numeroHebra!=cantidadHebras-1){
-        hasta=(imageWidth/cantidadHebras)*(numeroHebra+1);
-    }    
-    else{
-        hasta=imageWidth;
-    }
-    for (int i=0;i< imageHeight;i++){
-        
-        for(int j=desde;j<hasta;j++){
-            if(lum(getRGBpixel(i,j))>umbral){
-                image[i][j][B]=255;
-                image[i][j][R]=255;
-                image[i][j][G]=255;
-                image[i][j][A]=255;
-            }
-            else{
-                image[i][j][B]=0;
-                image[i][j][R]=0;
-                image[i][j][G]=0;
-                image[i][j][A]=255;
-            }
-        }
-    }
-
-    lk.unlock();
-    cv.notify_one();
-    
-}
-
-void * ImageControl::escalaGrises(int numeroHebra,int cantidadHebras){
-    cout << "holi" << endl;
-     std::unique_lock<std::mutex> lk(m);
-        cv.wait(lk, []{return ready;});
-
-    int desde,hasta;
-    if(numeroHebra==0) desde=(imageWidth/cantidadHebras)*numeroHebra;
-    else { 
-        desde=(imageWidth/cantidadHebras)*numeroHebra+1;
-    }    
-   
-    if(numeroHebra!=cantidadHebras-1){
-        hasta=(imageWidth/cantidadHebras)*(numeroHebra+1);
-    }    
-    else{
-        hasta=imageWidth;
-    }
-       
-    for (int i=0;i< imageHeight;i++){
-        
-        for(int j=desde;j<hasta;j++){
-                
-                //cout << lum(getRGBpixel(i,j))<<endl;
-                image[i][j][B]=lum(getRGBpixel(i,j));
-                image[i][j][R]=lum(getRGBpixel(i,j));
-                image[i][j][G]=lum(getRGBpixel(i,j));
-                image[i][j][A]=image[i][j][A];
-        }
-    }
-    lk.unlock();
-    cv.notify_one();
-    pthread_barrier_wait(&mybarrier);
- 
-}
-
-
-int  ImageControl::lum(int * pixel){
-    return pixel[R]*0.3+pixel[G]*0.59+pixel[B]*0.11;
-}
-
-void  ImageControl::saveImage(char *filename, int tag){
-   
-    FILE *prueba;
-    prueba=fopen(filename,"wb");
-    fwrite(&header,1,offset,prueba);
-    if (true){
-        //cout << "Height " << imageHeight << endl;
-        //cout << "Width " << imageWidth << endl;
-        for(int i=0; i<imageHeight ; i++)
-        {
-            for(int j = 0; j < imageWidth*4; j += 4)
-            {
-                if(tag==0){
-                    fwrite(&(image[i][j/4][B]),sizeof(unsigned char),1,prueba);
-                    fwrite(&(image[i][j/4][G]),sizeof(unsigned char),1,prueba);
-                    fwrite(&(image[i][j/4][R]),sizeof(unsigned char),1,prueba);
-                    fwrite(&(image[i][j/4][A]),sizeof(unsigned char),1,prueba);
-                }
-                else if(tag==1){
-                    fwrite(&(byn[i][j/4][B]),sizeof(unsigned char),1,prueba);
-                    fwrite(&(byn[i][j/4][G]),sizeof(unsigned char),1,prueba);
-                    fwrite(&(byn[i][j/4][R]),sizeof(unsigned char),1,prueba);
-                    fwrite(&(byn[i][j/4][A]),sizeof(unsigned char),1,prueba);
-                }
-                else{
-                    fwrite(&(escala[i][j/4][B]),sizeof(unsigned char),1,prueba);
-                    fwrite(&(escala[i][j/4][G]),sizeof(unsigned char),1,prueba);
-                    fwrite(&(escala[i][j/4][R]),sizeof(unsigned char),1,prueba);
-                    fwrite(&(escala[i][j/4][A]),sizeof(unsigned char),1,prueba);
-                }
-            }
-        }
-    }
-    fclose(prueba);
-    
-}
-
-void * ImageControl::nearlyBlack(int umbral,int numeroHebra,int cantidadHebras){
-    //cout << "Entraste a nearlyBlack" << endl;
-    std::unique_lock<std::mutex> lk(m);
-     cv.wait(lk, []{return ready;});
-     
-    int desde,hasta;
-    if(numeroHebra==0) desde=(imageWidth/cantidadHebras)*numeroHebra;
-    else { 
-        desde=(imageWidth/cantidadHebras)*numeroHebra+1;
-    }    
-   
-    if(numeroHebra!=cantidadHebras-1){
-        hasta=(imageWidth/cantidadHebras)*(numeroHebra+1);
-    }    
-    else{
-        hasta=imageWidth;
-    }
-    
-
-     
-    for (int i=0;i< imageHeight;i++){
-     
-        for(int j=desde;j<hasta;j++)
-        {
-           
-            if(lum(getRGBpixel(i,j))>umbral){
-                countWhite++;
-            }
-            else{
-                countBlack++;
-            }
-        }
-    }
-  
-    lk.unlock();
-    cv.notify_one();
-
-}
-int ImageControl::freeImages(){
-    for(int i=0; i<imageHeight ; i++)
-    {
-        for(int j = 0; j < imageWidth; j++)
-        {
-            free(&image[i][j][B]);
-            free(&image[i][j][R]);
-            free(&image[i][j][G]);
-            free(&image[i][j][A]);
-            free(&image[i][j]);
-
-            free(&byn[i][j][B]);
-            free(&byn[i][j][R]);
-            free(&byn[i][j][G]);
-            free(&byn[i][j][A]);
-            free(&byn[i][j]);
-
-            free(&escala[i][j][B]);
-            free(&escala[i][j][R]);
-            free(&escala[i][j][G]);
-            free(&escala[i][j][A]);
-            free(&escala[i][j]);
-        }
-        
-        free(&image[i]);
-        free(&byn[i]);
-        free(&escala[i]);
-       
-        
-    }
-     free(&image);
-        free(&byn);
-        free(&escala);
-  
-}
-
-
-// funcion para leer una imagen con hebras
-void * ImageControl::loadImage(void * filename){
-
-    std::lock_guard<std::mutex> lk(m);
-    
-
-    char * filenames = (char *) filename;
-    FILE* f = fopen(filenames, "rb");
+    FILE* f = fopen(filename, "rb");
     if(f == NULL)
         throw "Argument Exception";
   
@@ -293,12 +80,156 @@ void * ImageControl::loadImage(void * filename){
 
     }
     //out <<"finciclo";
-    ready = true;
-  
-    cv.notify_one();
     fclose(f);
+    return data;
+}
 
-    ready = true;   
+int* ImageControl::getRGBpixel(int i,int j){
+    return image[i][j];
+}
+
+void ImageControl::blancoYnegro(int umbral){
+    byn= (int***)malloc(sizeof(int**)*imageHeight);
+    for (int i=0;i< imageHeight;i++){
+        byn[i]=(int**)malloc(sizeof(int*)*imageWidth);
+        for(int j=0;j<imageWidth;j++){
+            byn[i][j]=(int*)malloc(sizeof(int)*4);
+            if(lum(getRGBpixel(i,j))>umbral){
+                byn[i][j][B]=255;
+                byn[i][j][R]=255;
+                byn[i][j][G]=255;
+                byn[i][j][A]=255;
+            }
+            else{
+                byn[i][j][B]=0;
+                byn[i][j][R]=0;
+                byn[i][j][G]=0;
+                byn[i][j][A]=255;
+            }
+        }
+    }
+    return;
+}
+
+void ImageControl::escalaGrises(){
+    escala= (int***)malloc(sizeof(int**)*imageHeight);
+    for (int i=0;i< imageHeight;i++){
+        escala[i]=(int**)malloc(sizeof(int*)*imageWidth);
+        for(int j=0;j<imageWidth;j++){
+                escala[i][j]=(int*)malloc(sizeof(int)*4);
+                //cout << lum(getRGBpixel(i,j))<<endl;
+                escala[i][j][B]=lum(getRGBpixel(i,j));
+                escala[i][j][R]=lum(getRGBpixel(i,j));
+                escala[i][j][G]=lum(getRGBpixel(i,j));
+                escala[i][j][A]=image[i][j][A];
+        }
+    }
+    return;
+}
+
+int ImageControl::lum(int * pixel){
+    return pixel[R]*0.3+pixel[G]*0.59+pixel[B]*0.11;
+}
+
+int ImageControl::saveImage(char *filename, int tag){
+   
+    FILE *prueba;
+    prueba=fopen(filename,"wb");
+    fwrite(&header,1,offset,prueba);
+    if (true){
+        //cout << "Height " << imageHeight << endl;
+        //cout << "Width " << imageWidth << endl;
+        for(int i=0; i<imageHeight ; i++)
+        {
+            for(int j = 0; j < imageWidth*4; j += 4)
+            {
+                if(tag==0){
+                    fwrite(&(image[i][j/4][B]),sizeof(unsigned char),1,prueba);
+                    fwrite(&(image[i][j/4][G]),sizeof(unsigned char),1,prueba);
+                    fwrite(&(image[i][j/4][R]),sizeof(unsigned char),1,prueba);
+                    fwrite(&(image[i][j/4][A]),sizeof(unsigned char),1,prueba);
+                }
+                else if(tag==1){
+                    fwrite(&(byn[i][j/4][B]),sizeof(unsigned char),1,prueba);
+                    fwrite(&(byn[i][j/4][G]),sizeof(unsigned char),1,prueba);
+                    fwrite(&(byn[i][j/4][R]),sizeof(unsigned char),1,prueba);
+                    fwrite(&(byn[i][j/4][A]),sizeof(unsigned char),1,prueba);
+                }
+                else{
+                    fwrite(&(escala[i][j/4][B]),sizeof(unsigned char),1,prueba);
+                    fwrite(&(escala[i][j/4][G]),sizeof(unsigned char),1,prueba);
+                    fwrite(&(escala[i][j/4][R]),sizeof(unsigned char),1,prueba);
+                    fwrite(&(escala[i][j/4][A]),sizeof(unsigned char),1,prueba);
+                }
+            }
+        }
+    }
+    fclose(prueba);
+    return 0;
+}
+
+bool ImageControl::nearlyBlack(int umbral){
+    //cout << "Entraste a nearlyBlack" << endl;
+    int countBlack=0;
+    int countWhite=0;
+    for(int i=0; i<imageHeight; i++)
+    {
+        for(int j = 0; j < imageWidth; j++)
+        {
+            if(lum(getRGBpixel(i,j))>umbral){
+                countWhite++;
+            }
+            else{
+                countBlack++;
+            }
+        }
+    }
+    cout<<"Cantidad de Negros: "<<countBlack<<endl;
+            cout<<"Cantidad de Blancos: "<<countWhite<<endl;
+
+    if(countBlack>countWhite){
+        return true;
+    }
+    else{
+        return false;
+    }
+    return true;
+
+}
+int ImageControl::freeImages(){
+    for(int i=0; i<imageHeight ; i++)
+    {
+        for(int j = 0; j < imageWidth; j++)
+        {
+            free(&image[i][j][B]);
+            free(&image[i][j][R]);
+            free(&image[i][j][G]);
+            free(&image[i][j][A]);
+            free(&image[i][j]);
+
+            free(&byn[i][j][B]);
+            free(&byn[i][j][R]);
+            free(&byn[i][j][G]);
+            free(&byn[i][j][A]);
+            free(&byn[i][j]);
+
+            free(&escala[i][j][B]);
+            free(&escala[i][j][R]);
+            free(&escala[i][j][G]);
+            free(&escala[i][j][A]);
+            free(&escala[i][j]);
+        }
+        
+        free(&image[i]);
+        free(&byn[i]);
+        free(&escala[i]);
+       
+        
+    }
+     free(&image);
+        free(&byn);
+        free(&escala);
+    return 0;
 }
 
 

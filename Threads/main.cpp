@@ -24,6 +24,7 @@ std::mutex m;
 std::condition_variable cv;
 bool ready = false;
 bool processed = false;
+ImageControl *received;
 
 int countWhite;
 int countBlack;
@@ -84,7 +85,10 @@ int main(int argc, char **argv){
 
     nhebras=h-1;
     //pthread_barrier_init(&mybarrier, NULL,nhebras);
-
+    received=new ImageControl();
+    //received=(ImageControl*)malloc(sizeof(ImageControl));
+    thread t[h];
+    pthread_barrier_init(&mybarrier, NULL,nhebras);
     while (i<c){
             
         
@@ -95,33 +99,32 @@ int main(int argc, char **argv){
         out="imagenSalida_"+std::to_string(i+1)+".bmp";
         sprintf(inF,in.c_str());
         sprintf(outF,out.c_str());
-        ImageControl *received=new ImageControl();
         //received->loadImage(inF);
-        thread t[h];
-        pthread_barrier_init(&mybarrier, NULL,nhebras);
+        
         //https://thispointer.com/c-11-multithreading-part-1-three-different-ways-to-create-threads/
-        //cout << "t0" << endl;
+        cout << "t0" << endl;
         t[0]=thread(&ImageControl::loadImage,received,inF);
-        //cout << "hebras " << h << " nhebras " <<nhebras<<endl;
-        //cout << "t1 escala grises" << endl;
+        t[0].join();
+        cout << "hebras " << h << " nhebras " <<nhebras<<endl;
+        cout << "t1 escala grises" << endl;/*
         for(int p=1;p<h;p++){
-            //cout << "p " << p << " h " << h << endl; 
-            //cout << "creando threads para escala de grises" << endl;
+            cout << "p " << p << " h " << h << endl; 
+            cout << "creando threads para escala de grises" << endl;
             t[p]=thread(&ImageControl::escalaGrises,received,p-1,h-1);
-            //cout << "LISTO CREADA threads para escala de grises" << endl;
+            cout << "LISTO CREADA threads para escala de grises" << endl;
         } 
-        //cout << "t1 join" << endl;
-        for(int p=1;p<h;p++){
-             t[p].detach();
-        }            
+        cout << "t1 join" << endl;
+        for(int p=0;p<h;p++){
+             t[p].join();
+        }/*    
         //cout << "t2 blanco y negro" << endl;
         for(int p=1;p<h;p++){
    
             t[p]=thread(&ImageControl::blancoYnegro,received,n,p-1,h-1);
         }
         //cout << "t2 join" << endl;        
-        for(int p=0;p<h;p++){
-             t[p].detach();
+        for(int p=1;p<h;p++){
+             t[p].join();
         }
         //cout << "t3 nearlyblack" << endl;           
         for(int p=1;p<h;p++){
@@ -129,7 +132,7 @@ int main(int argc, char **argv){
         }
         //cout << "t3 join" << endl;
         for(int p=1;p<h;p++){
-             t[p].detach();
+             t[p].join();
         }
         //cout << "save image" << endl;
         received->saveImage(outF,0);  
@@ -139,20 +142,21 @@ int main(int argc, char **argv){
         }else{
              cout << "|   imagen_" << i << "       |   nearlyBlack: no   |" << endl;
         }
-        
-         i++;
-         pthread_barrier_destroy(&mybarrier);
-         //pthread_exit(NULL);
-         //cout << c << endl;
+        */
+        i++;
+        //pthread_barrier_destroy(&mybarrier);
+        //pthread_exit(NULL);
+        //cout << c << endl;
         ready = false;
         processed = false;
         //delete [] t;
+        //received->freeImages();
+        //free(received);
+        cout <<"bai"<<endl;
          
     }
-    
-        
-        
-        
+    pthread_barrier_destroy(&mybarrier);
+    cout <<"bai2"<<endl;        
   
     return 0;
 }
